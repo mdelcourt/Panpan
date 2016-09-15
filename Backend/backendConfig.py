@@ -2,7 +2,7 @@
 squareCol = [128,255,128]
 squareMinSize = 10
 
-bkgEstim  = "Average, bitch" #Can be Average or Peak
+bkgEstim  = "Average" #Can be Average or Peak
 nSigmaBkg = 3	#Number of sigma to cut bkg
 
 lumiThresh = 50
