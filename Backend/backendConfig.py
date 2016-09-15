@@ -1,4 +1,4 @@
- 
+
 squareCol = [128,255,128]
 squareMinSize = 10
 
@@ -9,4 +9,4 @@ lumiThresh = 50
 nTrend = 3	#Number of consecutive pixels needed for trend
 
 peakMergeThresh 	= 0.75 		#max prop of average peak size for peak merging
-peakAfterMergeThresh 	= 1.5		#max prop size after merging	 
+peakAfterMergeThresh 	= 1.5		#max prop size after merging
