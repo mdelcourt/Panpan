@@ -353,27 +353,3 @@ def computeIntensity(peaks,lumi):
   return(intensity)
 
 
-def getOutIm(outIm, w, mask):
-   (x0,x1,y0,y1) = w
-
-   for y in range(1,len (mask)-1):
-      for x in range(1,len(mask[y])-1):
-         if (mask[y][x] != mask[y][x+1]
-         or mask[y][x] != mask[y+1][x]
-         or mask[y][x] != mask[y+1][x+1]):
-            outIm.putpixel((x+x0,y+y0),(0,0,255,255))
-   return outIm
-
-def getOutIm2(outIm, w, mask):
-   """ for testing if comprehension makes it faster. BTW It doesn't."""
-   (x0,x1,y0,y1) = w
-
-   listPixels = [(x+x0,y+y0) for x in range(1,len(mask[0])-1) for y in range(1,len (mask)-1) if (mask[y][x] != mask[y][x+1]
-         or mask[y][x] != mask[y+1][x]
-         or mask[y][x] != mask[y+1][x+1])]
-
-   for (x,y) in listPixels:
-      outIm.putpixel((x,y),(0,0,255,255))
-   #print(len(listPixels))
-   return outIm
-
