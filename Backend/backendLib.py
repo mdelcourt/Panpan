@@ -72,11 +72,7 @@ def getBkg(pix,w):
         h.Fill(getLumi(pix[x,y]))
   if conf.useRoot:
     memDump.append(TCanvas())
-<<<<<<< HEAD
-    h.Draw()
-=======
     h.Draw("hist")
->>>>>>> martinDev
 
   mLumi = max(lumi)
   inMaximum=False
@@ -241,11 +237,7 @@ def getPeaks(lumi,w):
       h_lumiProfile.Fill(x,l)
   if conf.useRoot:
     memDump.append(TCanvas())
-<<<<<<< HEAD
-    h_lumiProfile.Draw()
-=======
     h_lumiProfile.Draw("hist")
->>>>>>> martinDev
 
   mergedTrends = trendMerger(stableTrends)
   for t in mergedTrends:
@@ -289,11 +281,7 @@ def getPeaks(lumi,w):
       h_line.SetLineWidth(1)
       h_line.SetLineStyle(3)
       memDump.append(h_line)
-<<<<<<< HEAD
-      h_line.Draw()
-=======
       h_line.Draw("hist")
->>>>>>> martinDev
 
   peaks = []
   peakStart = mins[0]
@@ -349,14 +337,6 @@ def getPeaks(lumi,w):
     h_line = TLine(p[1],0,p[1],2000)
     h_line.SetLineWidth(3)
     memDump.append(h_line)
-<<<<<<< HEAD
-    h_line.Draw()
-
-
-  return([])
-
-
-=======
     h_line.Draw("hist")
 
   return(mergedPeaks)
@@ -373,7 +353,6 @@ def computeIntensity(peaks,lumi):
   return(intensity)
 
 
->>>>>>> martinDev
 def getOutIm(outIm, w, mask):
    (x0,x1,y0,y1) = w
 
