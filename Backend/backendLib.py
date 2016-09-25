@@ -72,7 +72,11 @@ def getBkg(pix,w):
         h.Fill(getLumi(pix[x,y]))
   if conf.useRoot:
     memDump.append(TCanvas())
+<<<<<<< HEAD
     h.Draw()
+=======
+    h.Draw("hist")
+>>>>>>> martinDev
 
   mLumi = max(lumi)
   inMaximum=False
@@ -148,7 +152,7 @@ def getBkgProfile(pix,w,bkg=0,sBkg=0):
       h_bkgProfile.Fill(x,bkgTot*1./nPixBkg)
   if conf.useRoot:
     memDump.append(TCanvas())
-    h_bkgProfile.Draw()
+    h_bkgProfile.Draw("hist")
     memDump.append(TCanvas())
     h_west.GetZaxis().SetRangeUser(Lmin-1,LMax+1)
     h_west.Draw("colz")
@@ -170,7 +174,7 @@ def getLumiProfile(pix,w,bkgPro):
     profile.append(sumX)
     #h_xLumiProfile.Fill(x,sumX)
   #memDump.append(TCanvas())
-  #h_xLumiProfile.Draw()
+  #h_xLumiProfile.Draw("hist")
   return(profile)
 
 
@@ -180,7 +184,7 @@ def getTrends(lumi):
 
   trends         = []
   t                 = [0,0,-1]
-  prevLumi          = 0
+  prevLumi          = -1
   for x in range(len(lumi)):
     l=lumi[x]
 
@@ -237,7 +241,11 @@ def getPeaks(lumi,w):
       h_lumiProfile.Fill(x,l)
   if conf.useRoot:
     memDump.append(TCanvas())
+<<<<<<< HEAD
     h_lumiProfile.Draw()
+=======
+    h_lumiProfile.Draw("hist")
+>>>>>>> martinDev
 
   mergedTrends = trendMerger(stableTrends)
   for t in mergedTrends:
@@ -263,8 +271,8 @@ def getPeaks(lumi,w):
       h_line.Draw()
 
   mins = []
-  prevT = mergedTrends[0]
-  for t in mergedTrends[1:]:
+  prevT = [0,0,-1]
+  for t in mergedTrends:
     if prevT[2]<0 and t[2]>0:
       print "Found minimum at : %s %s"%(prevT[1],t[1])
       mins.append((prevT[1]+t[0])/2.)
@@ -281,7 +289,11 @@ def getPeaks(lumi,w):
       h_line.SetLineWidth(1)
       h_line.SetLineStyle(3)
       memDump.append(h_line)
+<<<<<<< HEAD
       h_line.Draw()
+=======
+      h_line.Draw("hist")
+>>>>>>> martinDev
 
   peaks = []
   peakStart = mins[0]
@@ -333,16 +345,35 @@ def getPeaks(lumi,w):
       h_line = TLine(p[0],0,p[0],2000)
       h_line.SetLineWidth(3)
       memDump.append(h_line)
-      h_line.Draw()
+      h_line.Draw("hist")
     h_line = TLine(p[1],0,p[1],2000)
     h_line.SetLineWidth(3)
     memDump.append(h_line)
+<<<<<<< HEAD
     h_line.Draw()
 
 
   return([])
 
 
+=======
+    h_line.Draw("hist")
+
+  return(mergedPeaks)
+
+def computeIntensity(peaks,lumi):
+  intensity = []
+  for p in peaks:
+    lum = 0
+    for x in range(int(p[0])+1,int(p[1])):
+      lum+=lumi[x]
+    lum+=lumi[int(p[0])]*0.5
+    lum+=lumi[int(p[1])]*0.5
+    intensity.append(lum)
+  return(intensity)
+
+
+>>>>>>> martinDev
 def getOutIm(outIm, w, mask):
    (x0,x1,y0,y1) = w
 
