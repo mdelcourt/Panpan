@@ -12,8 +12,4 @@ nTrend = 3	#Number of consecutive pixels needed for trend
 peakMergeThresh 	= 0.75 		#max prop of average peak size for peak merging
 peakAfterMergeThresh 	= 1.5		#max prop size after merging
 
-<<<<<<< HEAD
 useRoot = False #use root library or not. If not, no images generated
-=======
-useRoot = False #use root library or not. If not, no images generated
->>>>>>> master
