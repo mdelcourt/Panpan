@@ -3,7 +3,9 @@ from PIL import Image, ImageFilter
 import sys
 from Backend.backendLib import *
 from Backend.imageGenerator import *
+
 from Backend.western import *
+
 import time
 
 
@@ -16,6 +18,7 @@ else:
     print "ROOT not imported"
 #Read image
 im = Image.open( './Ressources/LPSK16001_3.png' )
+
 
 openim=time.time()
 print "open"+str(openim-init_time)
@@ -61,5 +64,3 @@ term_time = time.time()
 
 print "time: " + str(term_time-init_time)
 print "AvTime: " + str((term_time-init_time)/numTimes)
-
-

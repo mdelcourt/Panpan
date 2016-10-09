@@ -434,7 +434,7 @@ class western(object,conf):
 
   def addBkgMask(self,outIm):
     if conf.debug:
-      print 'getOutIm'
+      print 'addBkgMask'
     if not self.westernImgset:
       self.setWesternImage(outIm)
 
@@ -462,3 +462,4 @@ class western(object,conf):
       lum+=self.lumiProfile[int(p[1])]*0.5
       intensity.append(lum)
     return(intensity)
+
