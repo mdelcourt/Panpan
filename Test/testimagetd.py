@@ -3,6 +3,7 @@ from PIL import Image, ImageFilter
 import sys
 from Backend.backendLib import *
 from Backend.imageGenerator import *
+from Backend.western import *
 import time
 
 
@@ -16,49 +17,49 @@ else:
 #Read image
 im = Image.open( './Ressources/LPSK16001_3.png' )
 
+openim=time.time()
+print "open"+str(openim-init_time)
 pix=im.load()
-
+loadim=time.time()
+print "loadim"+str(loadim-openim)
 #copy image for output editing
 outIm = im.copy()
-
+copyim=time.time()
+print "copyim"+str(copyim-loadim)
 (sx,sy)=im.size
 
-listTimes=[]
-listTimes2=[]
-
+numTimes = 0
 
 for w in getWesterns(pix,sx,sy):
-  (bkg,sigma) = getBkg(pix,w)
+  getw=time.time()
+  print "getw"+str(getw-copyim)
+  (bkg,sigma) = w.getBkg(pix)
+  w.genLumiHist()
   print "Background = %s pm %s"%(bkg,sigma)
   if conf.useRoot:
     printWestern(pix,w,0)
-  (bkgPro,mask) = getBkgProfile(pix,w,bkg,sigma)
-  lumi = getLumiProfile(pix,w,bkgPro)
-  peaks = getPeaks(lumi,w)
+  w.calcBkgProfile(pix,bkg,sigma)
+  w.genBkgProfileHist()
+  bkgPro = w.getBkgProfile()
+  mask = w.getMask()
+  lumi = w.getLumiProfile(pix,bkgPro)
 
-  init2 = time.time()
-  #for i in range(1):
+  peaks = w.getPeaks() # always after getLumiProfile in order to create lumiProfile.
+  w.genLumiProfileHist()
 
-  outIm = getOutIm(im,w,mask)
-  listTimes.append(time.time()-init2)
+  #outIm = w.addBkgMask(outIm)
+  #tempwesternimage = w.getWesternImg()
+  #tempwesternimage.show()
 
-  #init3 = time.time()
-  #for i in range(1):
+  numTimes+=1
+  if numTimes == 1:
+    break
 
-     #outIm = getOutIm2(outIm,w,mask)
-     #listTimes2.append(time.time()-init3)
 
-outIm.show()
+#outIm.show()
 term_time = time.time()
 
 print "time: " + str(term_time-init_time)
+print "AvTime: " + str((term_time-init_time)/numTimes)
 
-#avtimes = 0
-#for i in listTimes:
-    #avtimes+=i
-#print str(avtimes/len(listTimes))
 
-#avtimes = 0
-#for i in listTimes2:
-    #avtimes+=i
-#print str(avtimes/len(listTimes2))
