@@ -72,4 +72,3 @@ def printWestern(pix,w,bkg=0):
   h_west.Draw("colz")
   memDump.append(h_west)
   memDump.append(c)
-
