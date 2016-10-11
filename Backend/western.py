@@ -272,7 +272,7 @@ class western(object,conf):
     peakStart = self.mins[0]
     peakStop = 0
     prevMin = self.mins[0]
-    print self.blotLumiProfile
+    print self.mins
     for m in self.mins[1:]:
       print peakStart
       print m
