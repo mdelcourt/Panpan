@@ -3,62 +3,65 @@ from PIL import Image, ImageFilter
 import sys
 from Backend.backendLib import *
 from Backend.imageGenerator import *
-import time
+
+from Backend.western import *
 
 
-init_time = time.time()
 
 if conf.useRoot:
     from ROOT import *
-    print "ROOT imported"
-else:
-    print "ROOT not imported"
+
+if conf.useNumpy:
+  import pylab
+
 #Read image
 im = Image.open( './Ressources/LPSK16001_3.png' )
 
-pix=im.load()
 
+pix=im.load()
 #copy image for output editing
 outIm = im.copy()
 
 (sx,sy)=im.size
 
-listTimes=[]
-listTimes2=[]
-
-
+intensitys=[] # for debug
+w_index = -1 # for debug
+a=0 # for debug
 for w in getWesterns(pix,sx,sy):
-  (bkg,sigma) = getBkg(pix,w)
+# to limit the number of westerns analysed (a bit faster for testing)
+  a+=1
+  w_index +=1
+  (bkg,sigma) = w.getBkg(pix)
+  w.genLumiHist()
   print "Background = %s pm %s"%(bkg,sigma)
-  if conf.useRoot:
-    printWestern(pix,w,0)
-  (bkgPro,mask) = getBkgProfile(pix,w,bkg,sigma)
-  lumi = getLumiProfile(pix,w,bkgPro)
-  peaks = getPeaks(lumi,w)
 
-  init2 = time.time()
-  #for i in range(1):
+  w.setWesternImage(im)
+  westernimage = w.getWesternImg()
+  westernimage.save("western_raw_"+str(w_index)+".png")
+  #westernimage.show()
+  w.printWestern(pix,bkg)
+  w.calcBkgProfile(pix,bkg,sigma)
+  bkgPro = w.getBkgProfile()
+  #mask = w.getMask() # not useful, except if you want the mask matrix
+  lumi = w.getLumiProfile(pix,bkgPro)
 
-  outIm = getOutIm(im,w,mask)
-  listTimes.append(time.time()-init2)
+  peaks = w.getPeaks() # always after getLumiProfile in order to create lumiProfile.
+  #creation des figures
+  w.genBkgProfileHist()
+  w.genBkgMatrix()
+  w.genPeakLumiProfile()
 
-  #init3 = time.time()
-  #for i in range(1):
+  outIm = w.addBkgMask(outIm) # always after calcBkgProfile!
 
-     #outIm = getOutIm2(outIm,w,mask)
-     #listTimes2.append(time.time()-init3)
+  intens = w.computeIntensity() # on en fait rien mais toi oui, sans doute
 
-outIm.show()
-term_time = time.time()
+# limit the number of westerns analysed (faster for testing)
+  #if a == 10:
+    #break
 
-print "time: " + str(term_time-init_time)
+# save the outpu image with foreground contour masks.
+outIm.save("outim.png")
 
-#avtimes = 0
-#for i in listTimes:
-    #avtimes+=i
-#print str(avtimes/len(listTimes))
+if conf.useNumpy:
 
-#avtimes = 0
-#for i in listTimes2:
-    #avtimes+=i
-#print str(avtimes/len(listTimes2))
+  pylab.close()
