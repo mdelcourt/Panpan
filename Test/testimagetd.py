@@ -6,17 +6,14 @@ from Backend.imageGenerator import *
 
 from Backend.western import *
 
-import time
-import pylab
 
-
-init_time = time.time()
 
 if conf.useRoot:
     from ROOT import *
-    print "ROOT imported"
-else:
-    print "ROOT not imported"
+
+if conf.useNumpy:
+  import pylab
+
 #Read image
 im = Image.open( './Ressources/LPSK16001_3.png' )
 
@@ -27,23 +24,25 @@ outIm = im.copy()
 
 (sx,sy)=im.size
 
-intensitys=[]
+intensitys=[] # for debug
 w_index = -1 # for debug
-
+a=0 # for debug
 for w in getWesterns(pix,sx,sy):
+# to limit the number of westerns analysed (a bit faster for testing)
+  a+=1
   w_index +=1
-  getw=time.time()
   (bkg,sigma) = w.getBkg(pix)
   w.genLumiHist()
   print "Background = %s pm %s"%(bkg,sigma)
 
   w.setWesternImage(im)
   westernimage = w.getWesternImg()
+  westernimage.save("western_raw_"+str(w_index)+".png")
   #westernimage.show()
   w.printWestern(pix,bkg)
   w.calcBkgProfile(pix,bkg,sigma)
   bkgPro = w.getBkgProfile()
-  mask = w.getMask()
+  #mask = w.getMask() # not useful, except if you want the mask matrix
   lumi = w.getLumiProfile(pix,bkgPro)
 
   peaks = w.getPeaks() # always after getLumiProfile in order to create lumiProfile.
@@ -51,36 +50,18 @@ for w in getWesterns(pix,sx,sy):
   w.genBkgProfileHist()
   w.genBkgMatrix()
   w.genPeakLumiProfile()
-  #print "peaks"
-  #print peaks
 
-  outIm = w.addBkgMask(outIm)
+  outIm = w.addBkgMask(outIm) # always after calcBkgProfile!
 
-  #westernimage.save("western "+str(w_index)+".png")
+  intens = w.computeIntensity() # on en fait rien mais toi oui, sans doute
 
-  #test des intensites finales
-  intensitys.append(w_index)
-  intens = w.computeIntensity()
-  pctintens = [i/sum(intens) for i in intens]
-  intensitys.append( pctintens)
-  #break
-
-# to limit the number of westerns analysed (a bit faster for testing)
-  #numTimes+=1
-  #if numTimes == 10:
+# limit the number of westerns analysed (faster for testing)
+  #if a == 10:
     #break
 
-term_time = time.time()
-
-print "time: " + str(term_time-init_time)
-print "AvTime: " + str((term_time-init_time)/w_index)
-
+# save the outpu image with foreground contour masks.
 outIm.save("outim.png")
-for i in intensitys:
-  print i
 
-#pylab.show()
-#a= raw_input("input")
-pylab.close()
-#outIm.show()
+if conf.useNumpy:
 
+  pylab.close()
