@@ -37,9 +37,6 @@ class western(object,conf):
     self.westernImg = Image.Image()
     self.westernImgset = False
 
-  def getInd(self):
-    return self.ind
-
 
   def getBkgProfile (self):
     return self.bkgProfile
@@ -113,6 +110,13 @@ class western(object,conf):
         for y in range(self.y0,self.y1):
           self.lumiProfile[int(self.getLumi(pix[x,y]))]+=1
 
+    if not conf.useNumpy and not conf.useRoot:
+      self.lumiProfile = [0 for i in range(0,255)]
+      for x in range(self.x0,self.x1):
+        for y in range(self.y0,self.y1):
+          self.lumiProfile[int(self.getLumi(pix[x,y]))]+=1
+
+
     if conf.useRoot:
       memDump.append(TCanvas())
       h.Draw("hist")
@@ -162,9 +166,6 @@ class western(object,conf):
     self.bkgMatrix = [[0 for x in range(self.x0,self.x1) ] for y in range(self.y0,self.y1)]
     Lmin = 255
     LMax = 0
-    #print self.x1-self.x0
-    #print self.y1-self.y0
-    #a=input()
     for x in range(self.x0,self.x1):
       nPixBkg= 0
       bkgTot = 0
@@ -197,19 +198,14 @@ class western(object,conf):
       h_west.Draw("colz")
 
 
-
-
   def getPeaks(self):
     """ returns merged peaks (i guess...) """
     if conf.debug:
       print 'getPeaks'
-    print self.x0
     self.getTrends()
-    #print trends
-
     for t in self.trends:
       if t[1]-t[0]>=conf.nTrend:
-        print "%s %s %s"%(t[0],t[1],conf.nTrend)
+        #print "%s %s %s"%(t[0],t[1],conf.nTrend)
         self.stableTrends.append(t)
     if conf.useRoot:
       self.h_lumiProfile = TH1F("h%s"%len(memDump),"xLumiProfile",len(self.blotLumiProfile),0,len(self.blotLumiProfile))
@@ -250,7 +246,7 @@ class western(object,conf):
     prevT = [0,0,-1]
     for t in self.mergedTrends:
       if prevT[2]<0 and t[2]>0:
-        print "Found minimum at : %s %s"%(prevT[1],t[1])
+        #print "Found minimum at : %s %s"%(prevT[1],t[1])
         self.mins.append((prevT[1]+t[0])/2.)
 
       prevT=t
@@ -272,11 +268,10 @@ class western(object,conf):
     peakStart = self.mins[0]
     peakStop = 0
     prevMin = self.mins[0]
-    print self.mins
-    for m in self.mins[1:]:
-      print peakStart
-      print m
 
+    for m in self.mins[1:]:
+      #print peakStart
+      #print m
       maxi = max(self.blotLumiProfile[int(peakStart):int(m)])
       minLum = self.blotLumiProfile[int(m)]
       if minLum>0.5*maxi:
@@ -285,44 +280,28 @@ class western(object,conf):
         peakStop = m
         self.peaks.append([peakStart,peakStop])
         peakStart= m
-    print "peakspeaks"
-    print self.peaks
     #Merging peaks if too small
     avSize=0
     for p in self.peaks:
       pSize = p[1]-p[0]
       avSize +=pSize*1./len(self.peaks)
-      print p
-      print avSize
 
     for i in range(len(self.peaks)):
       p = self.peaks[i]
       pSize = p[1]-p[0]
-      print conf.peakMergeThresh*avSize
-      print conf.peakAfterMergeThresh*avSize
       if pSize<conf.peakMergeThresh*avSize:
-        print p
-        print pSize
         print "Peak under threshold !"
         print "Attempt to merge..."
         if i == len(self.peaks)-1:
-          print p
           print "Last peak ! Unable to merge !"
         else:
           nP = self.peaks[i+1]
           if pSize+(nP[1]-nP[0])>conf.peakAfterMergeThresh*avSize:
-            print p
-            print nP
             print "Peak would be too big after merging, aborting !"
           else:
-            print p
-            print nP
             print "Merging peaks..."
             self.peaks[i+1][0]=p[0]
       else:
-        print p
-        print pSize
-        print "append merge"
         self.mergedPeaks.append(p)
 
     if len(self.mergedPeaks)<1:
@@ -338,9 +317,6 @@ class western(object,conf):
       h_line.SetLineWidth(3)
       memDump.append(h_line)
       h_line.Draw("hist")
-
-    print "merged peaks"
-    print self.mergedPeaks
     return(self.mergedPeaks)
 
 
@@ -375,11 +351,12 @@ class western(object,conf):
   def trendMerger(self):
     """ merge trends... I guess? for peak definition
     """
+
     if conf.debug:
       print 'trendMerger'
     prevSign = 0
     prevTrend = [0,0,0]
-    for t in self.trends:
+    for t in self.stableTrends:
       if not t[2] == prevTrend[2]:
         if not prevTrend[2] == 0:
           self.mergedTrends.append(prevTrend)
@@ -387,24 +364,20 @@ class western(object,conf):
       else:
         prevTrend[1] = t[1]
     self.mergedTrends.append(prevTrend)
-    print self.mergedTrends
 
 
 
 
-  def genPeakLumiProfile (self,ind,name="",path=""):
+  def genPeakLumiProfile (self,name="",path=""):
     """ generate and save on disk luminosity profile of blots along X axis """
-    ind = ind+1
     if name == "":
-      name = path+"Luminosity profile histo western "+str(self.ind)+".svg"
+      name = path+"Luminosity "+str(self.ind)+".svg"
     if conf.useNumpy:
       #print "lenself.blotLumiProfile"+str(len(self.blotLumiProfile))
       pylab.figure()
       pylab.bar(range(len(self.blotLumiProfile)),self.blotLumiProfile,width=1,color="#3C0D6E",edgecolor="#220740",linewidth=0.1)
       pylab.title(name)
       #for p in self.peaks:
-        #print "peakes"
-        #print p
         #pylab.plot([p[0],p[0]],[0,2000],color = "orange")
         #pylab.axvline(x=p[0], ymin=0, ymax=2000)
       #pylab.axvline(x=self.peaks[-1][1], ymin=0, ymax=0.2, color = "orange")
@@ -417,12 +390,10 @@ class western(object,conf):
       pylab.savefig(name,format='svg')
       #pylab.show()
       #pylab.close()
-    return ind
 
 
-  def genLumiHist(self,ind,name="",path=""):
+  def genLumiHist(self,name="",path=""):
     """ generates and saves on disk luminosity profile of western (not only blots; blots+bckgrnd)"""
-    ind = ind+1
     if conf.useNumpy:
       if name == "":
         name = path+"Luminosite. Western "+str(self.ind)+".svg"
@@ -473,7 +444,6 @@ class western(object,conf):
       #h_xLumiProfile.Fill(x,sumX)
     #memDump.append(TCanvas())
     #h_xLumiProfile.Draw("hist")
-    print "lenself.blotLumiProfile"+str(len(self.blotLumiProfile))
     return(self.blotLumiProfile)
 
   def computeIntensity(self):
@@ -489,8 +459,7 @@ class western(object,conf):
       intensity.append(lum)
     return(intensity)
 
-  def printWestern(self,pix,ind,bkg=0,name="",path=""):
-    ind = ind+1
+  def printWestern(self,pix,bkg=0,name="",path=""):
     if name == "":
       name = path+"Western initial "+str(self.ind)+".svg"
     if conf.useRoot:
@@ -507,9 +476,8 @@ class western(object,conf):
       memDump.append(c)
 
 
-  def genBkgMatrix(self,ind,name="",path=""):
+  def genBkgMatrix(self,name="",path=""):
     """ generate background profile histogrm and saves it on disk"""
-    ind = ind+1
     if name == "":
       name = path+"background western "+str(self.ind)+".svg"
     if conf.useNumpy:
@@ -520,12 +488,10 @@ class western(object,conf):
       pylab.savefig(name,format='svg')
       #pylab.show()
       #pylab.close()
-    return ind
 
 
-  def genBkgProfileHist(self,ind,name="",path=""):
+  def genBkgProfileHist(self,name="",path=""):
     """ generate background profile histogrm and saves it on disk"""
-    ind = ind+1
     if name == "":
       name = path+"background profile histo western "+str(self.ind)+".svg"
     if conf.useNumpy:
@@ -538,4 +504,3 @@ class western(object,conf):
       pylab.savefig(name,format='svg')
       #pylab.show()
       #pylab.close()
-    return ind

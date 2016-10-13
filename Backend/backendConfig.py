@@ -11,7 +11,7 @@ class backendConfig:
   nTrend = 3	#Number of consecutive pixels needed for trend
 
 
-  peakMergeThresh  = 0.50 		#max prop of average peak size for peak merging
+  peakMergeThresh  = 0.75 		#max prop of average peak size for peak merging
   peakAfterMergeThresh  = 1.50		#max prop size after merging
 
   useRoot = False #use ROOT library or not. If not, no ROOT images generated
