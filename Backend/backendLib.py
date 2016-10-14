@@ -1,5 +1,5 @@
 import sys
-import backendConfig
+
 from Backend.western import *
 
 
@@ -42,7 +42,9 @@ def getWesterns(pix,sx,sy,conf):
       if l[0]==candi[0] and l[1] == candi[1]:
 
         print (l[0]+1,l[1]-1,candi[2]+1,l[2]-1)
-        w = western(l[0]+1,l[1]-1,candi[2]+1,l[2]-1)
+
+        westernPath = "/Data_out/1" # temporary
+        w = western(conf=conf,westernPath=westernPath,x0=l[0]+1,x1=l[1]-1,y0=candi[2]+1,y1=l[2]-1)
         westerns.append(w)
         lines.remove(l)
         break

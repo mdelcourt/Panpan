@@ -3,17 +3,18 @@ import sys
 from Backend.backendLib import *
 from Backend.backendConfig import *
 from Backend.western import *
+import pylab
 
-
-conf = backendConfig()
+conf = processConfig()
 if conf.useRoot:
     from ROOT import *
 
-if conf.useNumpy:
-  import pylab
+
+
 
 #Read image
 im = Image.open( './Ressources/LPSK16001_3.png' )
+
 
 
 pix=im.load()
