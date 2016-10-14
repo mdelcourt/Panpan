@@ -3,14 +3,12 @@ from PIL import Image
 
 import time
 
-conf = backendConfig
-
 if conf.useNumpy:
   #import numpy as np
   import pylab
 
 
-class western(object,conf):
+class western(object):
   """Class western. """
 
   classType = "western"
@@ -290,7 +288,7 @@ class western(object,conf):
     for p in self.peaks:
       pSize = p[1]-p[0]
       avSize +=pSize*1./len(self.peaks)
-    
+
     for i in range(len(self.peaks)):
       p = self.peaks[i]
       pSize = p[1]-p[0]
