@@ -1,13 +1,11 @@
-
 from PIL import Image, ImageFilter
 import sys
 from Backend.backendLib import *
-from Backend.imageGenerator import *
-
+from Backend.backendConfig import *
 from Backend.western import *
 
 
-
+conf = backendConfig()
 if conf.useRoot:
     from ROOT import *
 
@@ -27,7 +25,7 @@ outIm = im.copy()
 intensitys=[] # for debug
 w_index = -1 # for debug
 a=0 # for debug
-for w in getWesterns(pix,sx,sy):
+for w in getWesterns(pix,sx,sy,conf):
 # to limit the number of westerns analysed (a bit faster for testing)
   a+=1
   w_index +=1

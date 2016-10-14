@@ -1,27 +1,20 @@
 import sys
 import backendConfig
 from Backend.western import *
-#import numpy optimisation
 
-conf = backendConfig
-if conf.useRoot:
-    from ROOT import *
-    print "ROOT imported"
-else:
-    print "ROOT not imported"
 
 
 memDump=[]
 
 
-def isSquare(pix):
+def isSquare(pix,conf):
   if pix[0] == conf.squareCol[0] and pix[1] == conf.squareCol[1] and pix[2] == conf.squareCol[2]:
     return 1
   else:
     return 0
 
 
-def getWesterns(pix,sx,sy):
+def getWesterns(pix,sx,sy,conf):
 
   lines = []
 
@@ -30,13 +23,13 @@ def getWesterns(pix,sx,sy):
   for y in range(sy):
     for x in range(sx):
       if inLine:
-        if not isSquare(pix[x,y]):
+        if not isSquare(pix[x,y],conf):
           l1=x-1
           inLine=False
           if (l1-l0)>conf.squareMinSize-1:
             lines.append((l0,l1,ly))
       else:
-        if isSquare(pix[x,y]):
+        if isSquare(pix[x,y],conf):
           inLine=True
           l0=x
           ly=y

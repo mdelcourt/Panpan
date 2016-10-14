@@ -3,9 +3,6 @@ from PIL import Image
 
 import time
 
-if conf.useNumpy:
-  #import numpy as np
-  import pylab
 
 
 class western(object):
@@ -16,11 +13,13 @@ class western(object):
 
   def __init__(self,x0=0,x1=0,y0=0,y1=0):
     self.__class__.count += 1
-
-    self.setCoordinates((x0,x1,y0,y1))
-
     self.ind = self.__class__.count
 
+    if conf.useNumpy:
+      #import numpy as np
+      import pylab
+
+    self.setCoordinates((x0,x1,y0,y1))
     self.mask = list()
     self.memDump = list()
     self.westernMatrix = list()
