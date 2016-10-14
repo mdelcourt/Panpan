@@ -2,7 +2,7 @@
 from PIL import Image, ImageFilter
 import sys
 from Backend.backendLib import *
-from Backend.imageGenerator import *
+#from Backend.imageGenerator import *
 
 from Backend.western import *
 
