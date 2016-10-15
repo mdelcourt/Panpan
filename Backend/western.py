@@ -31,7 +31,9 @@ class western:
     self.stableTrends = list()
     self.mergedPeaks = list()
     self.westernImg = Image.Image()
+    self.westernOutImg = Image.Image()
     self.westernImgset = False
+    self.westernOutImgset = False
     self.intensity = list()
 
 
@@ -42,11 +44,6 @@ class western:
     return self.mask
 
   def getWesternImg(self):
-    """ returns western image
-    """
-    return self.westernImg
-
-  def saveWesternImg(self):
     """ returns western image
     """
     return self.westernImg
@@ -82,10 +79,15 @@ class western:
   def initMask(self):
     self.mask = [[0 for i in range(self.y0,self.y1)] for j in range(self.x0,self.x1)]
 
-  def setWesternImage(self,mainImg):
+  def setWesternImg(self,mainImg):
     self.westernImg = mainImg.crop((self.x0,self.y0, self.x1,self.y1))
     #self.westernImg  = self.westernImg.load()
     self.westernImgset = True
+
+  def setWesternOutImg(self,mainImg):
+    self.westernOutImg = mainImg.crop((self.x0,self.y0, self.x1,self.y1))
+    #self.westernImg  = self.westernImg.load()
+    self.westernOutImgset = True
 
   def getBkg(self,pix):
     """ returns background and sigma."""
@@ -365,53 +367,54 @@ class western:
         prevTrend[1] = t[1]
     self.mergedTrends.append(prevTrend)
 
-  def genPeakLumiProfile (self,name="",path=""):
-    """ generate and save on disk luminosity profile of blots along X axis """
-    if name == "":
-      name = path+"Luminosity "+str(self.ind)+".svg"
+  def genPeakLumiProfile (self,name="",path="",title=""):
+    """ generate and save on disk luminosity profile of blots along X axis.
+    """
+
     if self.conf.useNumpy:
-      #print "lenself.blotLumiProfile"+str(len(self.blotLumiProfile))
+      if name == "":
+        name = "Blot_Lumi_"+str(self.ind)+".svg"
+      if title == "":
+        title = "Blot luminosity "+ str(self.ind)
+
       pylab.figure()
-      pylab.bar(range(len(self.blotLumiProfile)),self.blotLumiProfile,width=1,color="#3C0D6E",edgecolor="#220740",linewidth=0.1)
-      pylab.title(name)
-      #for p in self.peaks:
-        #pylab.plot([p[0],p[0]],[0,2000],color = "orange")
-        #pylab.axvline(x=p[0], ymin=0, ymax=2000)
-      #pylab.axvline(x=self.peaks[-1][1], ymin=0, ymax=0.2, color = "orange")
+      pylab.step(range(len(self.blotLumiProfile)),self.blotLumiProfile,color="#3C0D6E")
+      pylab.title(title,y=1.03)
+      # draw peak-dividing lines
       for mp in self.mergedPeaks:
-        pylab.plot([mp[0],mp[0]],[0,2000],linewidth=2,color = "blue")
-        #pylab.axvline(x=mp[0], ymin=0, ymax=2000)
-      pylab.plot([self.mergedPeaks[-1][1],self.mergedPeaks[-1][1]],[0,2000],linewidth=2,color = "blue")
-      #pylab.axvline(x=self.mergedPeaks[-1][1], ymin=0, ymax=0.2, color = "blue")
+        height = max(self.blotLumiProfile)/3
+        pylab.plot([mp[0],mp[0]],[0,height],color='blue')
+      pylab.plot([self.mergedPeaks[-1][1],self.mergedPeaks[-1][1]],[0,height],color='blue')
+      pylab.axis([0,len(self.blotLumiProfile),0,1.1*max(self.blotLumiProfile)])
 
-      pylab.savefig(name,format='svg')
+      pylab.savefig(path+name)
       #pylab.show()
-      #pylab.close()
+      pylab.close()
 
 
-  def genLumiHist(self,name="",path=""):
+  def genLumiHist(self,name="",path="",title=""):
     """ generates and saves on disk luminosity profile of western (not only blots; blots+bckgrnd)"""
     if self.conf.useNumpy:
       if name == "":
-        name = path+"Luminosite. Western "+str(self.ind)+".svg"
-      #print "lenself.lumiProfile"+str(len(self.lumiProfile))
+        name = "Lumi_"+str(self.ind)+".svg"
+      if title == "":
+        title = "Full Luminosity "+ str(self.ind)
       pylab.figure()
-      pylab.bar([i for i in range(len(self.lumiProfile))],self.lumiProfile,width=1,color="#3C0D6E",edgecolor="#220740",linewidth=0.1)
-      pylab.axis([0,256,0,10000])
-      pylab.title(name)
+      pylab.step([i for i in range(len(self.lumiProfile))],self.lumiProfile)
+      pylab.axis([0,256,0,1.1*max(self.lumiProfile)])
+      pylab.title(title,y=1.03)
       #pylab.show()
-      pylab.savefig(name,format='svg')
-      #pylab.close()
+      pylab.savefig(path+name)
+      pylab.close()
 
 
   def addBkgMask(self,outIm):
-    """ add background/blot delimiting line on page image and western image.
-    edits the western image but also the general page image.
+    """ add background/blot delimiting line on western image.
     """
     if self.conf.debug:
       print 'addBkgMask'
-    if not self.westernImgset:
-      self.setWesternImage(outIm)
+    if not self.westernOutImgset:
+      self.setWesternOutImg(outIm)
 
     for x in range(1,len (self.mask)-1):
       for y in range(1,len(self.mask[x])-1):
@@ -419,10 +422,22 @@ class western:
         or self.mask[x][y] != self.mask[x+1][y]
         or self.mask[x][y] != self.mask[x+1][y+1]):
           outIm.putpixel((x+self.x0,y+self.y0),(0,0,255,255))
-          self.westernImg.putpixel((x,y),(0,0,255,255))
+          self.westernOutImg.putpixel((x,y),(0,0,255,255))
     return outIm
 
+  def genWesternImg(self,name="",path=""):
+    """ saves the western image.
+    """
+    if name == "":
+      name = "western_raw_"+str(self.ind)+".png"
+    self.westernImg.save(path+name)
 
+  def genOutWesternImg(self,name="",path=""):
+    """ saves the output western image with mask on.
+    """
+    if name == "":
+      name = "western_out_"+str(self.ind)+".png"
+    self.westernOutImg.save(path+name)
 
 
   def getLumiProfile(self,pix,bkgPro):
@@ -457,7 +472,8 @@ class western:
 
   def printWestern(self,pix,bkg=0,name="",title="",path=""):
     if name == "":
-      name = path+"Western_"+str(self.ind)+".svg"
+      name = "Western_"+str(self.ind)+".svg"
+
     if self.conf.useRoot:
       h_west = TH2I("hist%s"%len(self.memDump),"Western",self.x1-self.x0,self.x0,self.x1,self.y1-self.y0,self.y0,self.y1)
       for x in range(self.x0,self.x1):
@@ -470,6 +486,7 @@ class western:
       h_west.Draw("colz")
       self.memDump.append(h_west)
       self.memDump.append(c)
+
     if self.conf.useNumpy:
       for y in range(self.y0,self.y1):
         self.westernMatrix.append(list())
@@ -479,9 +496,10 @@ class western:
         title = "Western "+str(self.ind)
       pylab.figure()
       pylab.matshow(self.westernMatrix, cmap=pylab.cm.summer)
-      pylab.title(title)
+      pylab.title(title,y=1.15)
       pylab.colorbar()
-      pylab.savefig(name,format='svg')
+      pylab.savefig(path+name,format='svg')
+      pylab.close()
 
 
   def genBkgMatrix(self,name="",path="",title=""):
@@ -497,23 +515,23 @@ class western:
       pylab.colorbar()
       pylab.savefig(name,format='svg')
       #pylab.show()
-      #pylab.close()
+      pylab.close()
 
 
   def genBkgProfileHist(self,name="",path="",title=""):
     """ generate background profile histogrm and saves it on disk"""
     if name == "":
-      name = path+"bckgnd_profile_"+str(self.ind)+".svg"
+      name = "bck_profile_"+str(self.ind)+".svg"
     if title == "":
-      title = "background profile western "+str(self.ind)
+      title = "background profile "+str(self.ind)
 
     if self.conf.useNumpy:
       pylab.figure()
       #pylab.matshow(self.bkgProfile, cmap=pylab.cm.gnuplot2)
       #pylab.bar(range(len(self.bkgProfile)),self.bkgProfile,width=1,color="#3C0D6E",edgecolor="#220740",linewidth=0.1)
-      pylab.plot(range(len(self.bkgProfile)),self.bkgProfile,color="#3C0D6E")
-      pylab.title(title)
+      pylab.step(range(len(self.bkgProfile)),self.bkgProfile,color="#3C0D6E")
+      pylab.title(title,y=1.03)
       #pylab.colorbar()
-      pylab.savefig(name,format='svg')
+      pylab.savefig(path+name,format='svg')
       #pylab.show()
-      #pylab.close()
+      pylab.close()

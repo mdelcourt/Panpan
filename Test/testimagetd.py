@@ -34,9 +34,9 @@ for w in getWesterns(pix,sx,sy,conf):
   w.genLumiHist()
   print "Background = %s pm %s"%(bkg,sigma)
 
-  w.setWesternImage(im)
-  westernimage = w.getWesternImg()
-  westernimage.save("western_raw_"+str(w_index)+".png")
+  w.setWesternImg(im)
+  w.genWesternImg()
+
   #westernimage.show()
   w.printWestern(pix,bkg)
   w.calcBkgProfile(pix,bkg,sigma)
@@ -50,7 +50,8 @@ for w in getWesterns(pix,sx,sy,conf):
   w.genBkgMatrix()
   w.genPeakLumiProfile()
 
-  outIm = w.addBkgMask(outIm) # always after calcBkgProfile!
+  w.addBkgMask(outIm) # always after calcBkgProfile!
+  w.genOutWesternImg()
 
   intens = w.computeIntensity() # on en fait rien mais toi oui, sans doute
 
