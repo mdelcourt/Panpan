@@ -290,7 +290,7 @@ class western(object,conf):
     for p in self.peaks:
       pSize = p[1]-p[0]
       avSize +=pSize*1./len(self.peaks)
-    
+
     for i in range(len(self.peaks)):
       p = self.peaks[i]
       pSize = p[1]-p[0]
@@ -402,7 +402,7 @@ class western(object,conf):
       #print "lenself.lumiProfile"+str(len(self.lumiProfile))
       pylab.figure()
       pylab.bar([i for i in range(len(self.lumiProfile))],self.lumiProfile,width=1,color="#3C0D6E",edgecolor="#220740",linewidth=0.1)
-      pylab.axis([0,256,0,10000])
+      pylab.axis([0,256,0,1.1*max(self.lumiProfile)])
       pylab.title(name)
       #pylab.show()
       pylab.savefig(name,format='svg')
