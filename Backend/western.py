@@ -1,6 +1,7 @@
 from backendConfig import westernConfig
 from PIL import Image
 import pylab
+import numpy as np
 import time
 
 
@@ -164,7 +165,7 @@ class western:
       self.memDump.append(h_west)
     #if conf.useNumpy:
     #array inverse (y puis x)
-    self.bkgMatrix = [[int() for x in range(self.x0,self.x1) ] for y in range(self.y0,self.y1)]
+    self.bkgMatrix = [[np.nan for x in range(self.x0,self.x1) ] for y in range(self.y0,self.y1)]
     Lmin = 255
     LMax = 0
     for x in range(self.x0,self.x1):
@@ -370,6 +371,7 @@ class western:
   def genPeakLumiProfile (self,name="",path="",title=""):
     """ generate and save on disk luminosity profile of blots along X axis.
     """
+    print "genPeakLumiProfile"
 
     if self.conf.useNumpy:
       if name == "":
@@ -389,7 +391,7 @@ class western:
 
       pylab.savefig(path+name)
       #pylab.show()
-      pylab.close()
+      pylab.close("all")
 
 
   def genLumiHist(self,name="",path="",title=""):
@@ -405,7 +407,7 @@ class western:
       pylab.title(title,y=1.03)
       #pylab.show()
       pylab.savefig(path+name)
-      pylab.close()
+      pylab.close("all")
 
 
   def addBkgMask(self,outIm):
@@ -495,17 +497,18 @@ class western:
       if title == "":
         title = "Western "+str(self.ind)
       pylab.figure()
-      pylab.matshow(self.westernMatrix, cmap=pylab.cm.summer)
+      pylab.matshow(self.westernMatrix, cmap=pylab.cm.gnuplot2)
       pylab.title(title,y=1.15)
       pylab.colorbar()
       pylab.savefig(path+name,format='svg')
-      pylab.close()
+      pylab.close("all")
 
 
   def genBkgMatrix(self,name="",path="",title=""):
     """ generate background profile histogrm and saves it on disk"""
+    print "genBkgMatrix"
     if name == "":
-      name = path+"bckgnd_"+str(self.ind)+".svg"
+      name = "bckgnd_"+str(self.ind)+".svg"
     if title == "":
         title = "background western "+str(self.ind)
     if self.conf.useNumpy:
@@ -513,13 +516,14 @@ class western:
       pylab.matshow(self.bkgMatrix, cmap=pylab.cm.gnuplot2)
       pylab.title(title)
       pylab.colorbar()
-      pylab.savefig(name,format='svg')
+      pylab.savefig(path+name,format='svg')
       #pylab.show()
-      pylab.close()
+      pylab.close("all")
 
 
   def genBkgProfileHist(self,name="",path="",title=""):
     """ generate background profile histogrm and saves it on disk"""
+    print "genBkgProfileHist"
     if name == "":
       name = "bck_profile_"+str(self.ind)+".svg"
     if title == "":
@@ -534,4 +538,4 @@ class western:
       #pylab.colorbar()
       pylab.savefig(path+name,format='svg')
       #pylab.show()
-      pylab.close()
+      pylab.close("all")
