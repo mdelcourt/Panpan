@@ -14,7 +14,7 @@ def isSquare(pix,conf):
     return 0
 
 
-def getWesterns(pix,sx,sy,conf):
+def getWesterns(pix,sx,sy,conf,westernPath):
 
   lines = []
 
@@ -43,7 +43,6 @@ def getWesterns(pix,sx,sy,conf):
 
         print (l[0]+1,l[1]-1,candi[2]+1,l[2]-1)
 
-        westernPath = "/Data_out/1" # temporary
         w = western(conf=conf,westernPath=westernPath,x0=l[0]+1,x1=l[1]-1,y0=candi[2]+1,y1=l[2]-1)
         westerns.append(w)
         lines.remove(l)

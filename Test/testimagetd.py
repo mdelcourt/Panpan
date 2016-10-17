@@ -40,7 +40,11 @@ outIm = im.copy()
 intensitys=[] # for debug
 w_index = -1 # for debug
 a=0 # for debug
-for w in getWesterns(pix,sx,sy,conf):
+
+westernPath = "./Data_out/1/" # temporary
+for w in getWesterns(pix,sx,sy,conf,westernPath):
+
+
 # to limit the number of westerns analysed (a bit faster for testing)
   a+=1
   w_index +=1
