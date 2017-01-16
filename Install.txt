@@ -1,0 +1,3 @@
+
+- Edit matplotlib rc (/etc/matplotlibrc on ubuntu machines) to have the line :
+backend      : Agg

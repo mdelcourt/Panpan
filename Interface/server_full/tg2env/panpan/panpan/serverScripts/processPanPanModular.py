@@ -4,6 +4,8 @@ import os,csv,commands
 print os.environ['PYTHONPATH']
 
 from PIL import Image, ImageFilter
+import matplotlib
+matplotlib.use('Agg')
 import sys,json,time
 from Backend.backendLib import *
 
