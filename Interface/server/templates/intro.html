@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <html>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Western panpan</title>
+<meta name="keywords" content="" />
+<meta name="description" content="" />
+<link href="style.css" rel="stylesheet" type="text/css" media="screen" />
+</html>
+</head>
+<body>
+<div id="wrapper">
+  <div id="wrapper2">
+      <div id="page">
+      <html>
+    <div id="header">
+      <div id="logo">
+        <a href="index" style="text-decoration:none"><h1>Western panpan</h1></a>
+      </div>
+      <div id="menu">
+        <ul>
+          <li><a href="index">Home</a></li>
+          <li><a href="about">About</a></li>
+        </ul>
+      </div>
+    </div>
+</html>
+        <div id="content">
+          <div class="post">
+          <h2 class="title">Western PanPan</h2>
+          <div class="errorMessage" style="font-size:20px; color:red;"> <p> <b>  </b></p></div>
+          <p>
+          <div>
+            Western PanPan is a web application allowing the analyis of western experiments images. Each western (a line of blots which have been migrated together) is analysed to determine the intensity of peaks after removal of the background for this specific western. Results are given for each independent western as a csv file containing values of intensities and as images representing the different steps of analysis.
+          </div>
+          </p>
+          <h3 class="subtitle"> How to use Western PanPan?</h3>
+            <p>
+
+              <div><p>
+              Western PanPan's input is a png image containing one or more western experiments. A western experiment is understood as a line of blots (refered to as "western" hereafter). (TODO pic) The file needs to be .png (not .jpg nor .tiff, etc...) and should ideally not have been previously saved with a lossy compression (eg. jpg) then converted to png.
+              </p></div>
+              <div><p>
+              Automatic detection of westerns is not yet implemented in Western PanPan. Therefore, the user first has to manually delimit the western by a green rectangle (green value RGB: 128,255,128). This can easily be done using paint or an equivalent simple image processing program.
+              </p></div>
+              <div><p>
+              The user is first greeted by the interface that allows him to upload the image of the server by clicking "Browse...", selecting the image file and submiting it. TODO
+              </p></div>
+              <div><p>
+              For each western analysed, the results presented contain:
+<div><a> a false-color picture of the background, </a></div><div><a>a picture in false colors of the western, </a></div><div><a>a picture of the western with the contour of the blots (which are the regions of the western not considered as background by the algorithm), </a></div><div><a> a line plot of the horizontal profile of luminosity of the background (which is the sum of luminosities for each column of pixels of the background), </a></div><div><a>a histogram of luminosity values for all pixels and a line plot of values of blots with the limits of peaks.
+              </p></div>
+              <div><p></p></div>
+              <div><p></p></div>
+              <div><p></p></div>
+              <div><p></p></div>
+              <div><p></p></div>
+              <div><p></p></div>
+              <div><p></p></div>
+              <div><p></p></div>
+              <div><p></p></div>
+             </p>
+                      <script>var name = 'TestNewPanpans'</script>
+            <div class="entry">
+            <h3 class="subtitle">What is Western PanPan.</h3>
+            <p>
+              <div>
+                The image was loaded! View <a href="results/TestNewPanpans/image.png">here</a>.
+                <div>Contour is available <a href="results/TestNewPanpans/outim.png">here</a></div>
+              </div>
+             </p>
+            </div>
+            <div class="entry"><p>
+            <h3 class="subtitle">Results</h3>
+            <div> Westerns were produced!
+            <div> <a href="displayPlots?name=TestNewPanpans&amp;west=0">Western number 0</a></div><div> <a href="displayPlots?name=TestNewPanpans&amp;west=1">Western number 1</a></div><div> <a href="displayPlots?name=TestNewPanpans&amp;west=2">Western number 2</a></div><div> <a href="displayPlots?name=TestNewPanpans&amp;west=3">Western number 3</a></div>
+            </div>
+            <div><a href="results/TestNewPanpans/results.csv">Results in csv format </a> </div>
+            <div><a href="results/TestNewPanpans/results_comma.csv">Results in csv format with comma for decimals </a> </div>
+            </p></div>
+            <div class="entry"><p>
+            <h3 class="subtitle">Request validity status</h3>
+            <div><a href="results/TestNewPanpans/log.txt">Log</a></div>
+            <div id="refreshingStatus"></div>
+            <div id="requestStatus">
+            JAVASCRIPT NOT RUNNING
+            </div>
+            <script type="text/javascript" src="javascript/getPanpanStatus.js"></script>
+            <button onClick="deletePanpan()">Delete Panpan</button>
+            </p></div> <!-- end entry -->
+          </div> <!-- end post -->
+        </div><!-- end #content -->
+      <div style="clear: both;"> </div>
+      <div id="widebar">
+        <div style="clear: both;"> </div>
+      </div> <!-- end widebar -->
+    </div>
+    <!-- end #page -->
+  </div>
+  <!-- end #wrapper2 -->
+  <div id="footer">
+<!--    <p>(c) 2007 Website Name. Design by <a href="http://www.nodethirtythree.com/">NodeThirtyThree</a> + <a href="http://www.freecsstemplates.org/">Free CSS Templates</a></p>-->
+  </div>
+</div> <!-- end #wrapper -->
+</body>
+</html>
