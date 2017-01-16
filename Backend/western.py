@@ -391,7 +391,7 @@ class western:
 
       pylab.savefig(path+name)
       #pylab.show()
-      pylab.close("all")
+      #pylab.close("all")
 
 
   def genLumiHist(self,name="",path="",title=""):
@@ -407,7 +407,7 @@ class western:
       pylab.title(title,y=1.03)
       #pylab.show()
       pylab.savefig(path+name)
-      pylab.close("all")
+      #pylab.close("all")
 
 
   def addBkgMask(self,outIm):
@@ -501,7 +501,7 @@ class western:
       pylab.title(title,y=1.15)
       pylab.colorbar()
       pylab.savefig(path+name,format='svg')
-      pylab.close("all")
+      #pylab.close("all")
 
 
   def genBkgMatrix(self,name="",path="",title=""):
@@ -518,7 +518,7 @@ class western:
       pylab.colorbar()
       pylab.savefig(path+name,format='svg')
       #pylab.show()
-      pylab.close("all")
+      #pylab.close("all")
 
 
   def genBkgProfileHist(self,name="",path="",title=""):
@@ -538,4 +538,4 @@ class western:
       #pylab.colorbar()
       pylab.savefig(path+name,format='svg')
       #pylab.show()
-      pylab.close("all")
+      #pylab.close("all")
