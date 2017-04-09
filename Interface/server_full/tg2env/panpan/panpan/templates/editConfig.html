@@ -1,0 +1,156 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:py="http://genshi.edgewall.org/"
+    xmlns:xi="http://www.w3.org/2001/XInclude">
+<head>
+  <xi:include href="head.html" />
+</head>
+<body>
+<div id="wrapper">
+  <div id="wrapper2">
+      <div id="page">
+      <xi:include href="header.html" />
+        <div id="content">
+          <div class="post">
+          <div class="errorMessage" style="font-size:20px; color:${colour};"> <p> <b> ${message} </b></p></div>
+
+          <h2 class="title">Editing configuration for '${name}'</h2>
+            <div class="entry">
+<!--            <h3 class="subtitle">Upload .conf file</h3>-->
+            <h3 class="subtitle"> Manual entry </h3>
+            <p>
+            <form action="/changeOptions" method="POST">
+            <input type="hidden" name="westOpt" value="False"></input><input type="hidden" name="name" value="${name}"></input><input type="hidden" name="west" value="${west}"></input>
+            <div> <label style=" display: inline-block; width: 200px;"> Frame colour R : </label> <input type="number" name="colR" min="0" max="255" value="${pConf['squareCol'][0]}"></input></div>
+            <div> <label style=" display: inline-block; width: 200px;"> Frame colour G : </label> <input type="number" name="colG" min="0" max="255" value="${pConf['squareCol'][1]}"></input></div>
+            <div> <label style=" display: inline-block; width: 200px;"> Frame colour B : </label> <input type="number" name="colB" min="0" max="255" value="${pConf['squareCol'][2]}"></input></div>
+            <div> <label style=" display: inline-block; width: 200px;"> Minimum frame width :</label> <input type="number" name="squareSize" min="1" max="255" value="${pConf['squareMinSize']}"></input> </div>
+            <input type="Submit" value="Submit configuration"></input>
+            </form>
+            </p>
+            <h3 class="subtitle"> Load saved configuration</h3>
+            <p>
+            <form action="/loadConfig" method="POST">
+            <input type="hidden" name="westOpt" value="False"></input><input type="hidden" name="name" value="${name}"></input>
+            <div>
+            <label style=" display: inline-block; width: 200px;"> Load process config</label>
+            <select  name="confName"><option py:for='file in pConfList' value="${file}">${file}</option></select>
+            <input type="submit" value="Load"> </input>
+            </div>
+            </form>
+            </p>
+            <h3 class="subtitle"> Save to file</h3>
+            <p>Make sure all your modifications were submitted first!</p>
+            <p>
+            <form action="/saveConfig" method="POST"><input type="hidden" name="name" value="${name}"></input><input type="hidden" name="westOpt" value="False"></input>  <input value="myConfiguration" name="confName"></input> <input type="Submit" value="Save configuration"></input></form>
+            </p>
+
+            </div> <!-- end entry -->
+
+           <h2 class="title">Editing configuration for western '${name} - ${west}'</h2>
+            <div class="entry">
+            <h3 class="subtitle"> Manual entry </h3>
+            <p>
+            <form action="/changeOptions" method="POST">
+            <input type="hidden" name="westOpt" value="True"></input><input type="hidden" name="name" value="${name}"></input><input type="hidden" name="west" value="${west}"></input>
+            <div> <label style=" display: inline-block; width: 200px;"> Background estimate method:</label> <select name="bkgMethod"> <option value="Average">Average</option><option value="Peak">Peak</option></select></div>
+            <div> <label style=" display: inline-block; width: 200px;"> Bkg - n std deviations threshold:</label><input type="number" name="nSigmaBkg" min="0" max="20" value="${wConf['nSigmaBkg']}"></input></div>
+            <div> <label style=" display: inline-block; width: 200px;"> Luminosity threshold:</label><input type="number" name="lumiThresh" min="0" max="255" value="${wConf['lumiThresh']}"></input></div>
+            <div> <label style=" display: inline-block; width: 200px;"> Number of points for a trend:</label><input type="number" name="nTrend" min="0" max="20" value="${wConf['nTrend']}"></input></div>
+            <div> <label style=" display: inline-block; width: 200px;"> Peak merging threshold:</label><input type="number" name="peakMergeThresh" step="0.01" min="0" max="10" value="${wConf['peakMergeThresh']}"></input></div>
+            <div> <label style=" display: inline-block; width: 200px;"> Peak after merge threshold:</label><input type="number" name="peakAfterMergeThresh" step="0.01" min="0" max="5" value="${wConf['peakAfterMergeThresh']}"></input></div>
+            <input type="Submit"  value="Submit configuration"></input>
+            </form>
+            </p>
+
+            <h3 class="subtitle"> Load saved configuration</h3>
+            <p>
+            <form action="/loadConfig" method="POST">
+            <input type="hidden" name="westOpt" value="True"></input><input type="hidden" name="name" value="${name}"></input>
+            <div>
+            <label style=" display: inline-block; width: 200px;"> Load western config</label>
+            <select  name="confName"><option py:for='file in wConfList' value="${file}">${file}</option></select>
+            <input type="submit" value="Load"> </input>
+            </div>
+            </form>
+            </p>
+
+            <div>
+            <h3 class="subtitle"> Save to file</h3>
+            <p>Make sure all your modifications were submitted first!</p>
+            <p>
+            <form action="/saveConfig" method="POST"><input type="hidden" name="westOpt" value="True"></input><input type="hidden" name="name" value="${name}"></input> <input value="myConfiguration" name="confName"></input> <input type="Submit" value="Save configuration"></input></form>
+            </p>
+            </div>
+            </div>
+
+            <div class="entry">
+            <p>
+            <a href="/viewPanPan?name=${name}">Cancel and back to panpan</a>
+            </p>
+
+
+<!--  def loadWConf(self):
+    """ load config for this western instance from json file.
+    """
+    confName = "testconf.json"
+    with open(self.path+confName,"r") as f_in:
+      dct = json.loads(f_in.readlines()[0])
+
+      self.bkgEstim  = dct["bkgEstim"]
+      self.nSigmaBkg = dct["nSigmaBkg"]
+      self.lumiThresh = dct["lumiThresh"]
+      self.nTrend = dct["nTrend"]
+      self.peakMergeThresh  = dct["peakMergeThresh"]
+self.peakAfterMergeThresh = dct["peakAfterMergeThresh"]-->
+
+<!--             <p> -->
+<!--              <div py:if='hasImage==True'>
+                The image was loaded! View <a href="results/${name}/image.png">here</a>.
+                <div py:if='hasOutIm==True'>Contour is available <a href="results/${name}/outim.png">here</a></div>
+              </div>
+              <div py:if='hasImage==False'> The image was not loaded...</div>
+             </p>
+            </div>
+
+            <div class="entry"><p>
+            <h3 class="subtitle">Results</h3>
+            <div py:if='hasWesterns==True'> Westerns were produced!
+            <div py:for='w in westFolders'> <a href="displayPlots?name=${name}&amp;west=${w}">Western number ${w}</a></div>
+            </div>
+            <div py:if='hasWesterns==False'> No westerns yet.</div>
+            <div py:if='hasCSV==True'><a href="results/${name}/results.csv">Results in csv format </a> </div>
+            <div py:if='hasCSV==True'><a href="results/${name}/results_comma.csv">Results in csv format with comma for decimals </a> </div>
+            </p></div>
+
+            <div class="entry"><p>
+            <h3 class="subtitle">Request validity status</h3>
+            <div py:if="hasLog==True"><a href="results/${name}/log.txt">Log</a></div>
+
+            <div id="refreshingStatus"></div>
+            <div id="requestStatus">
+            JAVASCRIPT NOT RUNNING
+            </div>
+            <script type="text/javascript" src="javascript/getPanpanStatus.js"></script>
+            <button  onClick="deletePanpan()">Delete Panpan</button>-->
+
+
+
+
+
+            </div> <!-- end entry -->
+          </div> <!-- end post -->
+        </div><!-- end #content -->
+      <div style="clear: both;">&nbsp;</div>
+      <div id="widebar">
+        <div style="clear: both;">&nbsp;</div>
+      </div> <!-- end widebar -->
+    </div>
+    <!-- end #page -->
+  </div>
+  <!-- end #wrapper2 -->
+  <div id="footer">
+<!--    <p>(c) 2007 Website Name. Design by <a href="http://www.nodethirtythree.com/">NodeThirtyThree</a> + <a href="http://www.freecsstemplates.org/">Free CSS Templates</a></p>-->
+  </div>
+</div> <!-- end #wrapper -->
+</body>
+</html>

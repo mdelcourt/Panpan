@@ -1,0 +1,50 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:py="http://genshi.edgewall.org/"
+    xmlns:xi="http://www.w3.org/2001/XInclude">
+<head>
+  <title>PanPan viewer</title>
+</head>
+<body>
+<h1>Browsing results for panpan '${name}'</h1>
+<h2>Input file</h2>
+<div py:if='hasImage==True'>
+  The image was loaded! View <a href="${name}/image.png">here</a>.
+  <div py:if='hasOutIm==True'>Contour is available <a href="${name}/outim.png">here</a></div>
+</div>
+<div py:if='hasImage==False'> The image was not loaded...</div>
+<h2>Results</h2>
+<div py:if='hasWesterns==True'> Westerns were produced!
+<div py:for='w in westFolders'> <a href="displayPlots?name=${name}&amp;west=${w}">Western number ${w}</a></div>
+</div>
+<div py:if='hasWesterns==False'> No westerns yet.</div>
+
+<h2>Request validity status</h2>
+<div id="requestStatus">
+JAVASCRIPT NOT RUNNING
+</div>
+</body>
+<script>
+  function httpGet(theUrl)
+  {
+    var xmlHttp = null;
+
+    xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", theUrl, false );
+    xmlHttp.send( null );
+    return xmlHttp.responseText;
+  }
+  var relaunch = true
+  function refreshStatus()
+  {
+    if (relaunch){
+      document.getElementById('requestStatus').innerHTML=httpGet("jobStatus?name=${name}");
+      }
+    if (document.getElementById('requestStatus').innerHTML.indexOf('JOBISDONE')>0){
+    relaunch = false;
+     }
+  }
+  refreshStatus();
+  setInterval(refreshStatus,100);
+  </script>
+</html>
+

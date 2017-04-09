@@ -1,0 +1,34 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:py="http://genshi.edgewall.org/"
+    xmlns:xi="http://www.w3.org/2001/XInclude">
+<div py:if='gotJSON==True'>
+  <div py:if='imageRecognised==True' >
+  Image was recognized. <br/>
+  Found ${nWestern} westerns. <br/>
+  <div py:if='done'>
+  Process is done. <label style="display: none;"> JOBISDONE</label>
+  </div>
+  <div py:if='done==False and stalled==False'>
+  Currently processing western ${beingProcessed}/${nWestern} : ${processingStep}
+  </div>
+  </div>
+  <div py:if='imageRecognised==False'>
+  Image not recognised...
+  </div>
+  <div py:if='imageRecognised=="?"'>
+  Process starting...
+  </div>
+
+  <div py:if='stalled==True'>
+  <label style="color:red;">The process stopped...</label>  <label style="display: none;"> JOBISDONE</label> <br/>
+  Was processing western ${beingProcessed}/${nWestern} : ${processingStep}
+  </div>
+  <div py:if='stalled==True or done==True' ><button  onClick="javascript:window.location.href='launchJob?name=${name}&amp;action=all'">Relaunch</button></div>
+  <div py:if='stalled==False and done==False' ><button  onClick="if(confirm('Are you sure you want to kill the job ?')){javascript:window.location.href='killPanpan?name=${name}'}">Kill job</button></div>
+</div>
+<div py:if='gotJSON==False' >
+  Cannot find job status.
+  <button  onClick="javascript:window.location.href='launchJob?name=${name}&amp;action=all'">Launch</button>
+</div>
+
+</html>

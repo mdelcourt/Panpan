@@ -1,0 +1,20 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:py="http://genshi.edgewall.org/"
+    xmlns:xi="http://www.w3.org/2001/XInclude">
+<head>
+  <title>PanPan</title>
+</head>
+<body>
+<xi:include href="header.html" />
+<h1>Welcome to the PanPan web interface</h1>
+<div class="errorMessage"> ${message_}</div>
+<h2>Submit new picture</h2>
+<form action="sendPanPan"         ENCTYPE="multipart/form-data"
+        METHOD="POST"><input type="text" name="panpanName" value="${defaultName}"/><input type="file" name="fName"/> <input type="submit" value="Submit"/></form>
+<h2>Browse saved results</h2>
+<div py:for="item in savedResults">
+<a href="viewPanPan?name=${item}">${item}</a>
+</div>
+</body>
+</html>
+
