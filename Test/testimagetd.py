@@ -44,30 +44,33 @@ for w in getWesterns(pix,sx,sy,conf,westConfPath,westConfName): # generates west
 # to limit the number of westerns analysed (a bit faster for testing)
   a+=1
   w_index +=1
-  (bkg,sigma) = w.getBkg(pix)
-  w.genLumiHist(path = OutputPath)
-  #print "Background = %s pm %s"%(bkg,sigma)
+  if a<10:
 
-  w.setWesternImg(im)
-  w.genWesternImg(path = OutputPath)
+    print "analysing western nr "+str(w.ind)
+    (bkg,sigma) = w.getBkg(pix)
+    w.genLumiHist(path = OutputPath)
+    #print "Background = %s pm %s"%(bkg,sigma)
 
-  #westernimage.show()
-  w.printWestern(pix,bkg,path = OutputPath)
-  w.calcBkgProfile(pix,bkg,sigma)
-  bkgPro = w.getBkgProfile()
-  #mask = w.getMask() # not useful, except if you want the mask matrix
-  lumi = w.getLumiProfile(pix,bkgPro)
+    w.setWesternImg(im)
+    w.genWesternImg(path = OutputPath)
 
-  peaks = w.getPeaks() # always after getLumiProfile in order to create lumiProfile.
-  #creation des figures
-  w.genBkgProfileHist(path = OutputPath)
-  w.genBkgMatrix(path = OutputPath)
-  w.genPeakLumiProfile(path = OutputPath)
+    #westernimage.show()
+    w.printWestern(pix,bkg,path = OutputPath)
+    w.calcBkgProfile(pix,bkg,sigma)
+    bkgPro = w.getBkgProfile()
+    #mask = w.getMask() # not useful, except if you want the mask matrix
+    lumi = w.getLumiProfile(pix,bkgPro)
 
-  w.addBkgMask(outIm) # always after calcBkgProfile!
-  w.genOutWesternImg(path = OutputPath)
+    peaks = w.getPeaks() # always after getLumiProfile in order to create lumiProfile.
+    #creation des figures
+    w.genBkgProfileHist(path = OutputPath)
+    w.genBkgMatrix(path = OutputPath)
+    w.genPeakLumiProfile(path = OutputPath)
 
-  intens = w.computeIntensity() # on en fait rien mais toi oui, sans doute
+    w.addBkgMask(outIm) # always after calcBkgProfile!
+    w.genOutWesternImg(path = OutputPath)
+
+    intens = w.computeIntensity() # on en fait rien mais toi oui, sans doute
 
 # limit the number of westerns analysed (faster for testing)
   #if a == 10:

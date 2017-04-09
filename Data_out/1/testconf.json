@@ -1,1 +1,1 @@
-{"lumiThresh": 50, "bkgEstim": "Average", "nSigmaBkg": 3, "nTrend": 3, "peakAfterMergeThresh": 1.5, "peakMergeThresh": 0.75}
+{"lumiThresh": 50, "bkgEstim": "Average", "nSigmaBkg": 3, "nTrend": 1, "peakAfterMergeThresh": 1.2, "peakMergeThresh": 0.75, "numPeaks":-1}
