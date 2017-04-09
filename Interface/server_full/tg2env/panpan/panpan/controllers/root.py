@@ -121,6 +121,9 @@ class RootController(BaseController):
     panpanPic = open(resultFolder+"%s/image.png"%panpanName,"w")
     panpanPic.write(fName.value)
     panpanPic.close()
+    os.system("cp %s/default.json %s%s/pConf.json"%(pconfFolder,resultFolder,panpanName))
+    os.system("cp %s/default.json %s%s/wConf.json"%(wconfFolder,resultFolder,panpanName))
+
     return dict(name=panpanName)
 
   @expose('panpan.templates.viewPanpan')

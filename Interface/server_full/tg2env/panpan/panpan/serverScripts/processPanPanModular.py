@@ -3,19 +3,17 @@
 import os,csv,commands
 print os.environ['PYTHONPATH']
 
+os.system("pwd; ls")
 from PIL import Image, ImageFilter
-import matplotlib
-matplotlib.use('Agg')
+#import matplotlib
+#matplotlib.use('Agg')
 import sys,json,time
-from Backend.backendLib import *
 
+from Backend.backendLib import *
+from Backend.backendConfig import *
 from Backend.western import *
 
-if conf.useRoot:
-    from ROOT import *
-
-if conf.useNumpy:
-  import pylab
+import pylab
 
 status = {'imageRecognised':'?',
           'nWestern':'?',
@@ -35,6 +33,23 @@ def updateJSON(key,value):
     statusJSON.write(json.dumps(status))
 
 
+PanPanPath =  os.environ['PANPANPATH']
+
+procConfPath = "."
+procConfName = "pConf.json"
+
+westConfPath = "." # temporary   config path for one western (but for tests, all westerns)
+westConfName = "wConf.json"
+
+# load process config file.
+conf = processConfig(procConfPath,procConfName)
+
+if conf.useRoot:
+    from ROOT import *
+
+
+
+
 #Read image
 im = Image.open( 'image.png' )
 
@@ -47,12 +62,12 @@ updateJSON('imageRecognised',True)
 intensitys=[] # for debug
 w_index = -1 # for debug
 a=0 # for debug
-westernList = getWesterns(pix,sx,sy)
+westernList = getWesterns(pix,sx,sy,conf,westConfPath,westConfName)
 updateJSON('nWestern',len(westernList))
 
 finalResult = []
 
-for w in getWesterns(pix,sx,sy):
+for w in westernList:
 # to limit the number of westerns analysed (a bit faster for testing)
   a+=1
   updateJSON('beingProcessed',a)
@@ -66,7 +81,7 @@ for w in getWesterns(pix,sx,sy):
   w.genLumiHist(path=path_)
   print "Background = %s pm %s"%(bkg,sigma)
   updateJSON('processingStep','cropping western...')
-  w.setWesternImage(im)
+  w.setWesternImg(im)
   westernimage = w.getWesternImg()
   westernimage.save(path_+"western_raw_"+str(w_index)+".png")
   #westernimage.show()
