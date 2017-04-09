@@ -17,6 +17,12 @@
           <div class="errorMessage" style="font-size:20px; color:${colour};"> <p> <b> ${message} </b></p></div>
                       <script>var name = '${name}'</script>
             <div class="entry">
+            <p>
+            <h3 class="subtitle">Configuration</h3>
+            <a href="/configureJob?name=${name}&amp;west=all">Change global configuration</a>
+            </p>
+            </div>
+            <div class="entry">
             <h3 class="subtitle">Input file</h3>
             <p>
               <div py:if='hasImage==True'>

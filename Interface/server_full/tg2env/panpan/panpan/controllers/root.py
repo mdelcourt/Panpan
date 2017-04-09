@@ -14,18 +14,22 @@ __all__ = ['RootController']
 PANPAN_PATH = os.environ['PANPANPATH']
 SERVER_PATH = os.environ['SERVERPATH']
 resultFolder = SERVER_PATH+"/panpan/public/results/"
+pconfFolder = SERVER_PATH+"/panpan/public/jobConfig/"
+wconfFolder = SERVER_PATH+"/panpan/public/westConfig/"
 
 def inputCleaner(text):
   toReturn=""
   for x in text:
-    if x.lower() in "azertyuiopmlkjhgfdsqwxcvbn123456789_":
+    x=x.replace(" ","_")
+    if x.lower() in "azertyuiopmlkjhgfdsqwxcvbn0123456789_":
       toReturn+=x
   return(toReturn)
 
 def checkGoodName(name):
-  inputCleaner(name)
+  name=inputCleaner(name)
   try:
     os.listdir(resultFolder+name)
+    assert name in os.listdir(resultFolder)
     return(True)
   except:
     return(False)
@@ -184,7 +188,7 @@ class RootController(BaseController):
   @expose("panpan.templates.about")
   def about(self):
     return({})
-  
+
   @expose("panpan.templates.status")
   def jobStatus(self,name=""):
     os.system("pwd")
@@ -239,3 +243,122 @@ class RootController(BaseController):
 
 
     return(page)
+
+  @expose("panpan.templates.editConfig")
+  def configureJob(self,name="",west="all",message=""):
+    print name
+    print inputCleaner(name)
+    if not(checkGoodName(name)):
+      redirect("index?message=Invalid+request")
+    if not west=="all":
+      redirect("viewPanPan?name=%s&message=%s&mType=Error"%(name,"Sorry, option not available yet.".replace(" ","+")))
+    #Check if configuration exists :
+    page = {"name":name,"message":message,"west":west,"colour":""}
+
+    if not "pConf.json" in os.listdir(resultFolder+name):
+      print "Copying default configuration file"
+      os.system("cp %s/default.json %s%s/pConf.json"%(pconfFolder,resultFolder,name))
+      print "cp %s/default.json %s%s/pConf.json"%(pconfFolder,resultFolder,name)
+    print "Loading config file (pConf.json)"
+
+    page['pConfList']=[f.replace(".json","") for f in os.listdir(pconfFolder)]
+    page['wConfList']=[f.replace(".json","") for f in os.listdir(wconfFolder)]
+    with open(resultFolder+name+"/pConf.json","r") as jf:
+      page['pConf'] = json.loads(jf.readlines()[0])
+
+    if not "wConf.json" in os.listdir(resultFolder+name):
+      print "Copying default configuration file"
+      os.system("cp %s/default.json %s%s/wConf.json"%(wconfFolder,resultFolder,name))
+      print "cp %s/default.json %s%s/wConf.json"%(wconfFolder,resultFolder,name)
+    print "Loading config file (wConf.json)"
+    with open(resultFolder+name+"/wConf.json","r") as jf:
+      page['wConf'] = json.loads(jf.readlines()[0])
+    return(page)
+
+  @expose()
+  def changeOptions(self,westOpt="True",name="",west="all",bkgMethod="",nSigmaBkg="",lumiThresh="",nTrend="",peakMergeThresh="",peakAfterMergeThresh="",colR="",colG="",colB="",squareSize=""):
+    if not(checkGoodName(name)):
+      print name
+      redirect("index?message=Invalid+request")
+    if not westOpt in ["True","False"]:
+      redirect("viewPanPan?name=%s&message=%s&mType=Error"%(name,"Invalid request.".replace(" ","+")))
+    if westOpt=="True" and not west=="all":
+      redirect("viewPanPan?name=%s&message=%s&mType=Error"%(name,"Sorry, option not available yet.".replace(" ","+")))
+    opt={}
+    optFile = "%sConf.json"%("w" if westOpt=="True" else "p")
+    if not optFile in os.listdir(resultFolder+name):
+      redirect("viewPanPan?name=%s&message=%s&mType=Error"%(name,"Error, unable to get configuration file...".replace(" ","+")))
+    with open(resultFolder+name+"/"+optFile,'r') as jf:
+      opt=json.loads(jf.readlines()[0])
+    if westOpt=="True":
+      try:
+        opt["bkgEstim"]=bkgMethod
+        opt["nSigmaBkg"]=float(nSigmaBkg)
+        opt["lumiThresh"]=float(lumiThresh)
+        opt["nTrend"]=int(nTrend)
+        opt["peakMergeThresh"]=float(peakMergeThresh)
+        opt["peakAfterMergeThresh"]=float(peakAfterMergeThresh)
+      except:
+        redirect("viewPanPan?name=%s&message=%s&mType=Error"%(name,"Error, bad request...".replace(" ","+")))
+      with open(resultFolder+name+"/"+optFile,'w') as jf:
+        jf.write(json.dumps(opt))
+      redirect("viewPanPan?name=%s&message=%s&mType=Info"%(name,"Change saved!".replace(" ","+")))
+    else:
+      try:
+        opt["squareCol"]=[int(colR),int(colG),int(colB)]
+        opt["squareMinSize"] = int(squareSize)
+      except:
+        redirect("viewPanPan?name=%s&message=%s&mType=Error"%(name,"Error, bad request...".replace(" ","+")))
+      with open(resultFolder+name+"/"+optFile,'w') as jf:
+        jf.write(json.dumps(opt))
+      redirect("viewPanPan?name=%s&message=%s&mType=Info"%(name,"Change saved!".replace(" ","+")))
+
+  @expose()
+  def saveConfig(self,name="",west="all",westOpt="True",confName=""):
+    if not(checkGoodName(name)):
+      print name
+      redirect("index?message=Invalid+request")
+    if not westOpt in ["True","False"]:
+      redirect("viewPanPan?name=%s&message=%s&mType=Error"%(name,"Invalid request.".replace(" ","+")))
+    if westOpt=="True" and not west=="all":
+      redirect("viewPanPan?name=%s&message=%s&mType=Error"%(name,"Sorry, option not available yet.".replace(" ","+")))
+
+    confName=inputCleaner(confName)
+
+    if westOpt=="True":
+      if confName+".json" in os.listdir(wconfFolder):
+        redirect("configureJob?name=%s&message=Name+already+exists!"%name)
+      else:
+        os.system("cp %s%s/wConf.json %s/%s.json"%(resultFolder,name,wconfFolder,confName))
+    else:
+      if confName+".json" in os.listdir(pconfFolder):
+        redirect("configureJob?name=%s&message=Name+already+exists!"%name)
+      else:
+        os.system("cp %s%s/pConf.json %s/%s.json"%(resultFolder,name,pconfFolder,confName))
+    redirect("configureJob?name=%s&message=Configuration+saved!"%name)
+    #if [f.replace(".json","") for f in os.listdir(pconfFolder)]
+
+
+  @expose()
+  def loadConfig(self,name="",west="all",westOpt="True",confName=""):
+    if not(checkGoodName(name)):
+      print name
+      redirect("index?message=Invalid+request")
+    if not westOpt in ["True","False"]:
+      redirect("viewPanPan?name=%s&message=%s&mType=Error"%(name,"Invalid request.".replace(" ","+")))
+    if westOpt=="True" and not west=="all":
+      redirect("viewPanPan?name=%s&message=%s&mType=Error"%(name,"Sorry, option not available yet.".replace(" ","+")))
+
+    confName=inputCleaner(confName)
+
+    if westOpt=="True":
+      if not confName+".json" in os.listdir(wconfFolder):
+        redirect("configureJob?name=%s&message=Cannot+find+config+file!"%name)
+      else:
+        os.system("cp  %s/%s.json %s%s/wConf.json"%(wconfFolder,confName,resultFolder,name))
+    else:
+      if not confName+".json" in os.listdir(pconfFolder):
+        redirect("configureJob?name=%s&message=Cannot+find+config+file!"%name)
+      else:
+        os.system("cp %s/%s.json %s%s/pConf.json "%(pconfFolder,confName,resultFolder,name))
+    redirect("configureJob?name=%s&message=Configuration+loaded!"%name)
