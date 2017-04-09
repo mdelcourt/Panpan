@@ -51,7 +51,7 @@ for w in getWesterns(pix,sx,sy,conf,westConfPath,westConfName): # generates west
   w.genWesternImg(path = OutputPath)
 
   #westernimage.show()
-  w.printWestern(pix,bkg)
+  w.printWestern(pix,bkg,path = OutputPath)
   w.calcBkgProfile(pix,bkg,sigma)
   bkgPro = w.getBkgProfile()
   #mask = w.getMask() # not useful, except if you want the mask matrix
@@ -59,8 +59,8 @@ for w in getWesterns(pix,sx,sy,conf,westConfPath,westConfName): # generates west
 
   peaks = w.getPeaks() # always after getLumiProfile in order to create lumiProfile.
   #creation des figures
-  w.genBkgProfileHist()
-  w.genBkgMatrix()
+  w.genBkgProfileHist(path = OutputPath)
+  w.genBkgMatrix(path = OutputPath)
   w.genPeakLumiProfile(path = OutputPath)
 
   w.addBkgMask(outIm) # always after calcBkgProfile!
@@ -73,7 +73,7 @@ for w in getWesterns(pix,sx,sy,conf,westConfPath,westConfName): # generates west
     #break
 
 # save the outpu image with foreground contour masks.
-outIm.save("outim.png")
+outIm.save(OutputPath + "outim.png")
 
 if conf.useNumpy:
 
