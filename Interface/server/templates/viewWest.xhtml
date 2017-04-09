@@ -1,0 +1,17 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:py="http://genshi.edgewall.org/"
+    xmlns:xi="http://www.w3.org/2001/XInclude">
+<head>
+  <title>PanPan</title>
+</head>
+<body>
+<h1>Results from ${name}/${west}</h1>
+<div py:for="graph in pict">
+<img src="${graph}"/>
+</div>
+<div py:for="line in summary.split('\n')">
+${line}<br/>
+</div>
+</body>
+</html>
+

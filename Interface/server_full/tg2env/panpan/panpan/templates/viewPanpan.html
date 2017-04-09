@@ -1,0 +1,77 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:py="http://genshi.edgewall.org/"
+    xmlns:xi="http://www.w3.org/2001/XInclude">
+<head>
+  <xi:include href="head.html" />
+</head>
+<body>
+<div id="wrapper">
+  <div id="wrapper2">
+      <div id="page">
+      <xi:include href="header.html" />
+        <div id="content">
+          <div class="post">
+
+
+          <h2 class="title">Browsing results for panpan '${name}'</h2>
+          <div class="errorMessage" style="font-size:20px; color:${colour};"> <p> <b> ${message} </b></p></div>
+                      <script>var name = '${name}'</script>
+            <div class="entry">
+            <p>
+            <h3 class="subtitle">Configuration</h3>
+            <a href="/configureJob?name=${name}&amp;west=all">Change global configuration</a>
+            </p>
+            </div>
+            <div class="entry">
+            <h3 class="subtitle">Input file</h3>
+            <p>
+              <div py:if='hasImage==True'>
+                The image was loaded! View <a href="results/${name}/image.png">here</a>.
+                <div py:if='hasOutIm==True'>Contour is available <a href="results/${name}/outim.png">here</a></div>
+              </div>
+              <div py:if='hasImage==False'> The image was not loaded...</div>
+             </p>
+            </div>
+
+            <div class="entry"><p>
+            <h3 class="subtitle">Results</h3>
+            <div py:if='hasWesterns==True'> Westerns were produced!
+            <div py:for='w in westFolders'> <a href="displayPlots?name=${name}&amp;west=${w}">Western number ${w}</a></div>
+            </div>
+            <div py:if='hasWesterns==False'> No westerns yet.</div>
+            <div py:if='hasCSV==True'><a href="results/${name}/results.csv">Results in csv format </a> </div>
+            <div py:if='hasCSV==True'><a href="results/${name}/results_comma.csv">Results in csv format with comma for decimals </a> </div>
+            </p></div>
+
+            <div class="entry"><p>
+            <h3 class="subtitle">Request validity status</h3>
+            <div py:if="hasLog==True"><a href="results/${name}/log.txt">Log</a></div>
+
+            <div id="refreshingStatus"></div>
+            <div id="requestStatus">
+            JAVASCRIPT NOT RUNNING
+            </div>
+            <script type="text/javascript" src="javascript/getPanpanStatus.js"></script>
+            <button  onClick="deletePanpan()">Delete Panpan</button>
+
+
+
+
+
+            </p></div> <!-- end entry -->
+          </div> <!-- end post -->
+        </div><!-- end #content -->
+      <div style="clear: both;">&nbsp;</div>
+      <div id="widebar">
+        <div style="clear: both;">&nbsp;</div>
+      </div> <!-- end widebar -->
+    </div>
+    <!-- end #page -->
+  </div>
+  <!-- end #wrapper2 -->
+  <div id="footer">
+<!--    <p>(c) 2007 Website Name. Design by <a href="http://www.nodethirtythree.com/">NodeThirtyThree</a> + <a href="http://www.freecsstemplates.org/">Free CSS Templates</a></p>-->
+  </div>
+</div> <!-- end #wrapper -->
+</body>
+</html>
