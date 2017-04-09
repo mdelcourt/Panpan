@@ -25,6 +25,7 @@ if conf.useRoot:
 im = Image.open( PanPanPath+'/Ressources/LPSK16001_3.png' )  # TO BE UPDATED FOR SERVER
 
 
+
 pix=im.load()
 #copy image for output editing
 outIm = im.copy()
