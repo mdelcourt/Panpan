@@ -17,6 +17,8 @@ class western:
     self.ind = self.__class__.count
 
     self.conf = westernConfig(westConfPath,westConfName,PConf)
+    if PConf.useRoot:
+      from ROOT import *
     self.ProcConf = PConf # process config
 
     self.setCoordinates((x0,x1,y0,y1))
@@ -276,8 +278,8 @@ class western:
       #print m
       maxi = max(self.blotLumiProfile[int(peakStart):int(m)])
       minLum = self.blotLumiProfile[int(m)]
-      if minLum>0.5*maxi:
-        print "Removing minimum %s (%s >50%% of max (%s))"%(m,minLum,maxi)
+      if minLum>0.01*self.conf.lumiThresh*maxi:
+        print "Removing minimum %s (%s >%s%% of max (%s))"%(m,minLum,self.conf.lumiThresh,maxi)
       else:
         peakStop = m
         self.peaks.append([peakStart,peakStop])
