@@ -1,34 +1,28 @@
 from PIL import Image, ImageFilter
-import sys
+import sys, os
 from Backend.backendLib import *
 from Backend.backendConfig import *
 from Backend.western import *
 import pylab
 
 
-conf = processConfig()
+
+PanPanPath =  os.environ['PANPANPATH']   #TO BE UPDATED FOR SERVER (path of PanPan project)
+OutputPath =  PanPanPath+"/Data_out/1/" # temporary (path  of output data - for tests, all westerns in one)
+procConfPath = PanPanPath+"/Data_out/"
+procConfName = "PConf.json"
+
+westConfPath = PanPanPath+"/Data_out/1" # temporary   config path for one western (but for tests, all westerns)
+westConfName = "testconf.json"
+
+# load process config file.
+conf = processConfig(procConfPath,procConfName)
+
 if conf.useRoot:
     from ROOT import *
 
-#from pylab import *
-#from numpy import outer
-#rc('text', usetex=False)
-#a=outer(arange(0,1,0.01),ones(10))
-#figure(figsize=(10,5))
-#subplots_adjust(top=0.8,bottom=0.05,left=0.01,right=0.99)
-#maps=[m for m in cm.datad if not m.endswith("_r")]
-#maps.sort()
-#l=len(maps)+1
-#for i, m in enumerate(maps):
-    #subplot(1,l,i+1)
-    #axis("off")
-    #imshow(a,aspect='auto',cmap=get_cmap(m),origin="lower")
-    #title(m,rotation=90,fontsize=10)
-#savefig("colormaps.png",dpi=100,facecolor='gray')
 
-#Read image
-im = Image.open( './Ressources/LPSK16001_3.png' )
-
+im = Image.open( PanPanPath+'/Ressources/LPSK16001_3.png' )  # TO BE UPDATED FOR SERVER
 
 
 pix=im.load()
@@ -41,19 +35,20 @@ intensitys=[] # for debug
 w_index = -1 # for debug
 a=0 # for debug
 
-westernPath = "./Data_out/1/" # temporary
-for w in getWesterns(pix,sx,sy,conf,westernPath):
+
+
+for w in getWesterns(pix,sx,sy,conf,westConfPath,westConfName): # generates western objects and iterates over them
 
 
 # to limit the number of westerns analysed (a bit faster for testing)
   a+=1
   w_index +=1
   (bkg,sigma) = w.getBkg(pix)
-  w.genLumiHist()
-  print "Background = %s pm %s"%(bkg,sigma)
+  w.genLumiHist(path = OutputPath)
+  #print "Background = %s pm %s"%(bkg,sigma)
 
   w.setWesternImg(im)
-  w.genWesternImg()
+  w.genWesternImg(path = OutputPath)
 
   #westernimage.show()
   w.printWestern(pix,bkg)
@@ -66,10 +61,10 @@ for w in getWesterns(pix,sx,sy,conf,westernPath):
   #creation des figures
   w.genBkgProfileHist()
   w.genBkgMatrix()
-  w.genPeakLumiProfile()
+  w.genPeakLumiProfile(path = OutputPath)
 
   w.addBkgMask(outIm) # always after calcBkgProfile!
-  w.genOutWesternImg()
+  w.genOutWesternImg(path = OutputPath)
 
   intens = w.computeIntensity() # on en fait rien mais toi oui, sans doute
 

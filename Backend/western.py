@@ -12,11 +12,12 @@ class western:
   classType = "western"
   count = 0
 
-  def __init__(self,conf,westernPath,x0=0,x1=0,y0=0,y1=0):
+  def __init__(self,PConf,westConfPath,westConfName,x0=0,x1=0,y0=0,y1=0):
     self.__class__.count += 1
     self.ind = self.__class__.count
 
-    self.conf = westernConfig(westernPath)
+    self.conf = westernConfig(westConfPath,westConfName,PConf)
+    self.ProcConf = PConf # process config
 
     self.setCoordinates((x0,x1,y0,y1))
     self.mask = list()
@@ -92,10 +93,10 @@ class western:
 
   def getBkg(self,pix):
     """ returns background and sigma."""
-    if self.conf.debug:
+    if self.ProcConf.debug:
       print 'getBkg'
 
-    if self.conf.useRoot:
+    if self.ProcConf.useRoot:
       self.lumiProfile = [0 for i in range(0,255)]
       h = TH1I("h%s"%len(self.memDump),"h",256,0,256)
       self.memDump.append(h)
@@ -104,20 +105,20 @@ class western:
           self.lumiProfile[int(self.getLumi(pix[x,y]))]+=1
           h.Fill(self.getLumi(pix[x,y]))
 
-    if self.conf.useNumpy:
+    if self.ProcConf.useNumpy:
       self.lumiProfile = [0 for i in range(0,255)]
       for x in range(self.x0,self.x1):
         for y in range(self.y0,self.y1):
           self.lumiProfile[int(self.getLumi(pix[x,y]))]+=1
 
-    if not self.conf.useNumpy and not self.conf.useRoot:
+    if not self.ProcConf.useNumpy and not self.ProcConf.useRoot:
       self.lumiProfile = [0 for i in range(0,255)]
       for x in range(self.x0,self.x1):
         for y in range(self.y0,self.y1):
           self.lumiProfile[int(self.getLumi(pix[x,y]))]+=1
 
 
-    if self.conf.useRoot:
+    if self.ProcConf.useRoot:
       self.memDump.append(TCanvas())
       h.Draw("hist")
 
@@ -154,11 +155,11 @@ class western:
   def calcBkgProfile(self,pix,bkg=0,sBkg=0):
     """ calculates background and also mask matrix to draw contours of foreground.
     """
-    if self.conf.debug:
+    if self.ProcConf.debug:
       print 'calcBkgProfile'
 
     self.initMask()
-    if self.conf.useRoot:
+    if self.ProcConf.useRoot:
       h_bkgProfile= TH1F("h%s"%len(self.memDump),"Bkg profile",self.x1-self.x0,self.x0,self.x1)
       self.memDump.append(h_bkgProfile)
       h_west = TH2I("hist%s"%len(self.memDump),"Western",self.x1-self.x0,self.x0,self.x1,self.y1-self.y0,self.y0,self.y1)
@@ -178,9 +179,9 @@ class western:
             Lmin=l
           if l>LMax:
             LMax=l
-          if self.conf.useRoot:
+          if self.ProcConf.useRoot:
             h_west.Fill(x,y,l)
-          if self.conf.useNumpy:
+          if self.ProcConf.useNumpy:
             self.bkgMatrix[y-self.y0][x-self.x0] = l
           bkgTot+=l
           nPixBkg+=1
@@ -189,10 +190,10 @@ class western:
       if nPixBkg==0:
         nPixBkg=1
       self.bkgProfile.append(bkgTot*1./nPixBkg)
-      if self.conf.useRoot:
+      if self.ProcConf.useRoot:
         h_bkgProfile.Fill(x,bkgTot*1./nPixBkg)
 
-    if self.conf.useRoot:
+    if self.ProcConf.useRoot:
       self.memDump.append(TCanvas())
       h_bkgProfile.Draw("hist")
       self.memDump.append(TCanvas())
@@ -202,30 +203,28 @@ class western:
 
   def getPeaks(self):
     """ returns merged peaks (i guess...) """
-    if self.conf.debug:
+    if self.ProcConf.debug:
       print 'getPeaks'
     self.getTrends()
-    #print "trends"
-    #print self.trends
     for t in self.trends:
       if t[1]-t[0]>=self.conf.nTrend:
         #print "%s %s %s"%(t[0],t[1],conf.nTrend)
         self.stableTrends.append(t)
-    if self.conf.useRoot:
+    if self.ProcConf.useRoot:
       self.h_lumiProfile = TH1F("h%s"%len(self.memDump),"xLumiProfile",len(self.blotLumiProfile),0,len(self.blotLumiProfile))
       self.memDump.append(self.h_lumiProfile)
 
     for x in range(len(self.blotLumiProfile)):
       l=self.blotLumiProfile[x]
-      if self.conf.useRoot:
+      if self.ProcConf.useRoot:
         self.h_lumiProfile.Fill(x,l)
-    if self.conf.useRoot:
+    if self.ProcConf.useRoot:
       self.memDump.append(TCanvas())
       self.h_lumiProfile.Draw("hist")
 
     self.trendMerger()
     for t in self.mergedTrends:
-      if self.conf.useRoot:
+      if self.ProcConf.useRoot:
         h_line = TLine(t[0],self.blotLumiProfile[t[0]],t[1],self.blotLumiProfile[t[1]])
         if t[2]>0:
           h_line.SetLineColor(kGreen+1)
@@ -236,7 +235,7 @@ class western:
         h_line.Draw()
 
     for t in self.stableTrends:
-      if self.conf.useRoot:
+      if self.ProcConf.useRoot:
         h_line = TLine(t[0],self.blotLumiProfile[t[0]],t[1],self.blotLumiProfile[t[1]])
         if t[2]>0:
           h_line.SetLineColor(kGreen+1)
@@ -260,7 +259,7 @@ class western:
     if len(self.mins)<1:
       print "ERROR, no minimums found..."
       return([])
-    if self.conf.useRoot:
+    if self.ProcConf.useRoot:
       for m in self.mins:
         h_line = TLine(m,0,m,2000)
         h_line.SetLineWidth(1)
@@ -310,7 +309,7 @@ class western:
     if len(self.mergedPeaks)<1:
       print "ERROR, no merged peaks..."
       return([])
-    if self.conf.useRoot:
+    if self.ProcConf.useRoot:
       for p in self.mergedPeaks:
         h_line = TLine(p[0],0,p[0],2000)
         h_line.SetLineWidth(3)
@@ -326,7 +325,7 @@ class western:
   def getTrends(self):
     """ get trends for peak definition
     """
-    if self.conf.debug:
+    if self.ProcConf.debug:
       print 'getTrends'
     t                 = [0,0,-1]
     prevLumi          = -1
@@ -355,7 +354,7 @@ class western:
     """ merge trends... I guess? for peak definition
     """
 
-    if self.conf.debug:
+    if self.ProcConf.debug:
       print 'trendMerger'
     prevSign = 0
     prevTrend = [0,0,0]
@@ -368,12 +367,13 @@ class western:
         prevTrend[1] = t[1]
     self.mergedTrends.append(prevTrend)
 
+
   def genPeakLumiProfile (self,name="",path="",title=""):
     """ generate and save on disk luminosity profile of blots along X axis.
     """
     print "genPeakLumiProfile"
 
-    if self.conf.useNumpy:
+    if self.ProcConf.useNumpy:
       if name == "":
         name = "Blot_Lumi_"+str(self.ind)+".svg"
       if title == "":
@@ -396,7 +396,7 @@ class western:
 
   def genLumiHist(self,name="",path="",title=""):
     """ generates and saves on disk luminosity profile of western (not only blots; blots+bckgrnd)"""
-    if self.conf.useNumpy:
+    if self.ProcConf.useNumpy:
       if name == "":
         name = "Lumi_"+str(self.ind)+".svg"
       if title == "":
@@ -413,7 +413,7 @@ class western:
   def addBkgMask(self,outIm):
     """ add background/blot delimiting line on western image.
     """
-    if self.conf.debug:
+    if self.ProcConf.debug:
       print 'addBkgMask'
     if not self.westernOutImgset:
       self.setWesternOutImg(outIm)
@@ -444,7 +444,7 @@ class western:
 
   def getLumiProfile(self,pix,bkgPro):
     """ returns luminosity profile of blots along X axis"""
-    if self.conf.debug:
+    if self.ProcConf.debug:
       print 'getLumiProfile'
     i = 0
     #h_xLumiProfile= TH1F("h%s"%len(memDump),"xLumiProfile",x1-x0,x0,x1)
@@ -476,7 +476,7 @@ class western:
     if name == "":
       name = "Western_"+str(self.ind)+".svg"
 
-    if self.conf.useRoot:
+    if self.ProcConf.useRoot:
       h_west = TH2I("hist%s"%len(self.memDump),"Western",self.x1-self.x0,self.x0,self.x1,self.y1-self.y0,self.y0,self.y1)
       for x in range(self.x0,self.x1):
         for y in range(self.y0,self.y1):
@@ -489,7 +489,7 @@ class western:
       self.memDump.append(h_west)
       self.memDump.append(c)
 
-    if self.conf.useNumpy:
+    if self.ProcConf.useNumpy:
       for y in range(self.y0,self.y1):
         self.westernMatrix.append(list())
         for x in range(self.x0,self.x1):
@@ -505,13 +505,13 @@ class western:
 
 
   def genBkgMatrix(self,name="",path="",title=""):
-    """ generate background profile histogrm and saves it on disk"""
+    """ generate background profile histogram and saves it on disk"""
     print "genBkgMatrix"
     if name == "":
       name = "bckgnd_"+str(self.ind)+".svg"
     if title == "":
         title = "background western "+str(self.ind)
-    if self.conf.useNumpy:
+    if self.ProcConf.useNumpy:
       pylab.figure()
       pylab.matshow(self.bkgMatrix, cmap=pylab.cm.gnuplot2)
       pylab.title(title)
@@ -529,7 +529,7 @@ class western:
     if title == "":
       title = "background profile "+str(self.ind)
 
-    if self.conf.useNumpy:
+    if self.ProcConf.useNumpy:
       pylab.figure()
       #pylab.matshow(self.bkgProfile, cmap=pylab.cm.gnuplot2)
       #pylab.bar(range(len(self.bkgProfile)),self.bkgProfile,width=1,color="#3C0D6E",edgecolor="#220740",linewidth=0.1)
