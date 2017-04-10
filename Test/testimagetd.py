@@ -44,7 +44,7 @@ for w in getWesterns(pix,sx,sy,conf,westConfPath,westConfName): # generates west
 # to limit the number of westerns analysed (a bit faster for testing)
   a+=1
   w_index +=1
-  if a<10:
+  if a>0:
 
     print "analysing western nr "+str(w.ind)
     (bkg,sigma) = w.getBkg(pix)

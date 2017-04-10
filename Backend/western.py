@@ -254,9 +254,8 @@ class western:
     self.mins = []
     prevT = [0,0,-1]
     for t in self.mergedTrends:
-      print t
       if prevT[2]<0 and t[2]>0:
-        print "Found minimum at : %s %s %s"%(prevT[1],(prevT[1]+t[0])/2.,t[0])
+        #print "Found minimum at : %s %s %s"%(prevT[1],(prevT[1]+t[0])/2.,t[0])
         self.mins.append((prevT[1]+t[0])/2.)
 
       prevT=t
@@ -280,11 +279,11 @@ class western:
     print "mins"
     for m in self.mins[1:]:
       #print peakStart
-      print m
       maxi = max(self.blotLumiProfile[int(peakStart):int(m)])
       minLum = self.blotLumiProfile[int(m)]
       if minLum>self.conf.lumiThresh*0.01*maxi:
-        print "Removing minimum %s (%s %s%% of max (%s))"%(m,minLum,self.conf.lumiThresh,maxi)
+        pass
+        #print "Removing minimum %s (%s %s%% of max (%s))"%(m,minLum,self.conf.lumiThresh,maxi)
       else:
         peakStop = m
         self.peaks.append([peakStart,peakStop])
@@ -312,89 +311,93 @@ class western:
   def mergePeaks(self):
     """
     Merging peaks if too small.
+    AUtomatic: run several loops of merging. Each loop calculates average len based on nulber of peaks detected in previous pass. So each pass gives an oportunity to merge a bit more, until peaks are correctly seperated and extra merging always leads to too big merged lengths.
     """
+    peaks = copy.deepcopy(self.peaks)
     avSize=0
     sumsize = 0
-    for p in self.peaks:
+    for p in peaks:
       pSize = p[1]-p[0]
       sumsize +=pSize*1.
 
     # if user doesn't give a number of peaks, determine average based on detected peaks.
     # (this leads to over dividing peaks)
     if self.conf.numPeaks <= 0:
-      avSize = sumsize/len(self.peaks)
+      avSize = sumsize/len(peaks)
     # if user gives a number of peaks,use to determine expected average len of peaks.
     else:
       avSize = sumsize/self.conf.numPeaks
 
     if self.conf.numPeaks<=0: # automatic search for peaks: loops until no difference between peak list and merged peaks list
-      lenPeaks = len(self.peaks)
+      lenPeaks = len(peaks)
       lenMergedPeaks = len(self.mergedPeaks)
-      self.mergedPeaks = copy.deepcopy(self.peaks)
+      mergedPeaks = copy.deepcopy(peaks)
       continuer = True
       while continuer :
 
-        avSize = sumsize/len(self.peaks)
+        avSize = sumsize/len(peaks)
         merged_index = -1
-        for i in range(len(self.peaks)):
+        for i in range(len(peaks)):
           merged_index+=1
-          p = self.peaks[i]
+          p = peaks[i]
           pSize = p[1]-p[0]
-          if i == len(self.peaks)-1:
+          if i == len(peaks)-1:
             print "Last peak ! Unable to merge to following !"
-            print self.peaks[i][1]-self.peaks[i-1][0]
-            if self.mergedPeaks[-1][1]-self.mergedPeaks[-2][0] > self.conf.peakAfterMergeThresh*avSize:
+            if mergedPeaks[-1][1]-mergedPeaks[-2][0] > self.conf.peakAfterMergeThresh*avSize:
               print "Adding as last peak"
             else:
               print "Merging to  previous peak!"
-              self.mergedPeaks[-2][1] = self.mergedPeaks[-1][1]
-              self.mergedPeaks.pop(-1)
+              mergedPeaks[-2][1] = mergedPeaks[-1][1]
+              mergedPeaks.pop(-1)
           else:
-            nP = self.peaks[i+1]
+            nP = peaks[i+1]
             if pSize+(nP[1]-nP[0])>self.conf.peakAfterMergeThresh*avSize:
               print "Peak would be too big after merging, aborting !"
             else:
               print "Merging peaks..."
-              self.mergedPeaks[merged_index+1][0] = self.mergedPeaks[merged_index][0]
-              self.mergedPeaks.pop(merged_index)
+              mergedPeaks[merged_index+1][0] = mergedPeaks[merged_index][0]
+              mergedPeaks.pop(merged_index)
               merged_index -= 1
 
-        lenPeaks = len(self.peaks)
-        lenMergedPeaks = len(self.mergedPeaks)
+        lenPeaks = len(peaks)
+        lenMergedPeaks = len(mergedPeaks)
 
         if continuer:
-          self.peaks = copy.deepcopy(self.mergedPeaks)
+          peaks = copy.deepcopy(mergedPeaks)
 
         if lenPeaks == lenMergedPeaks:
           continuer = False
         print "Detected {} peaks".format(lenMergedPeaks)
+      self.mergedPeaks = copy.deepcopy(mergedPeaks)
 
     else: # merges peaks based on number of peaks given by user (used to estimate average size of peak).
-      self.mergedPeaks = copy.deepcopy(self.peaks)
+      #self.mergedPeaks = copy.deepcopy(self.peaks)
+      mergedPeaks = copy.deepcopy(peaks)
       avSize = sumsize/self.conf.numPeaks
       merged_index = -1
-      for i in range(len(self.peaks)):
+      for i in range(len(peaks)):
         merged_index+=1
-        p = self.peaks[i]
+        p = peaks[i]
 
         pSize = p[1]-p[0]
-        if i == len(self.peaks)-1:
+        if i == len(peaks)-1:
           print "Last peak ! Unable to merge to following !"
-          if self.mergedPeaks[-1][1]-self.mergedPeaks[-2][0] > self.conf.peakAfterMergeThresh*avSize:
+          if mergedPeaks[-1][1]-mergedPeaks[-2][0] > self.conf.peakAfterMergeThresh*avSize:
             print "Adding as last peak"
           else:
             print "Merging to  previous peak!"
-            self.mergedPeaks[-2][1] = self.mergedPeaks[-1][1]
-            self.mergedPeaks.pop(-1)
+            mergedPeaks[-2][1] = mergedPeaks[-1][1]
+            mergedPeaks.pop(-1)
         else:
-          nP = self.peaks[i+1]
+          nP = peaks[i+1]
           if pSize+(nP[1]-nP[0])>self.conf.peakAfterMergeThresh*avSize:
             print "Peak would be too big after merging, aborting !"
           else:
             print "Merging peaks..."
-            self.mergedPeaks[merged_index+1][0] = self.mergedPeaks[merged_index][0]
-            self.mergedPeaks.pop(merged_index)
+            mergedPeaks[merged_index+1][0] = mergedPeaks[merged_index][0]
+            mergedPeaks.pop(merged_index)
             merged_index -= 1
+      self.mergedPeaks = copy.deepcopy(mergedPeaks)
 
 
 
@@ -437,7 +440,6 @@ class western:
     prevSign = 0
     prevTrend = [0,0,0]
     for t in self.stableTrends:
-      print t
       if not t[2] == prevTrend[2]:
         if not prevTrend[2] == 0:
           self.mergedTrends.append(prevTrend)
