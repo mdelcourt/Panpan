@@ -70,6 +70,7 @@ for w in getWesterns(pix,sx,sy,conf,westConfPath,westConfName): # generates west
     w.addBkgMask(outIm) # always after calcBkgProfile!
     w.genOutWesternImg(path = OutputPath)
 
+
     intens = w.computeIntensity() # on en fait rien mais toi oui, sans doute
 
 # limit the number of westerns analysed (faster for testing)

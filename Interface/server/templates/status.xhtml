@@ -1,0 +1,23 @@
+<div>
+<div py:if='imageRecognised==True' >
+Image was recognized. <br/>
+Found ${nWestern} westerns. <br/>
+<div py:if='done'>
+Process is done. <label style="display: none;"> JOBISDONE</label>
+</div>
+<div py:if='done==False and stalled==False'>
+Currently processing western ${beingProcessed}/${nWestern} : ${processingStep}
+</div>
+</div>
+<div py:if='imageRecognised==False'>
+Image not recognised...
+</div>
+<div py:if='imageRecognised=="?"'>
+Process starting...
+</div>
+
+<div py:if='stalled==True'>
+The process stalled...  <label style="display: none;"> JOBISDONE</label>
+</div>
+<div py:if='stalled==True or done==True' ><button  onClick="javascript:window.location.href='launchJob?name=${name}&amp;action=all'">Relaunch</button></div>
+</div>

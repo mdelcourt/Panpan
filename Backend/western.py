@@ -18,6 +18,10 @@ class western:
     self.ind = self.__class__.count
 
     self.conf = westernConfig(westConfPath,westConfName,PConf)
+
+    if PConf.useRoot:
+      from ROOT import *
+
     self.ProcConf = PConf # process config
 
     self.setCoordinates((x0,x1,y0,y1))
@@ -240,7 +244,6 @@ class western:
         h_line.SetLineWidth(3)
         self.memDump.append(h_line)
         h_line.Draw()
-
       for t in self.stableTrends:
         h_line = TLine(t[0],self.blotLumiProfile[t[0]],t[1],self.blotLumiProfile[t[1]])
         if t[2]>0:

@@ -1,0 +1,46 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:py="http://genshi.edgewall.org/"
+    xmlns:xi="http://www.w3.org/2001/XInclude">
+<head>
+  <xi:include href="head.html" />
+</head>
+<body>
+<div id="wrapper">
+  <div id="wrapper2">
+      <div id="page">
+      <xi:include href="header.html" />
+        <div id="content">
+          <div class="post">
+            <div class="entry">
+
+
+
+
+
+            <h1>Your request has been submitted to the server under the name ${name}.</h1>
+Control your request from <a href="viewPanPan?name=${name}">here</a> <br/>
+Start job directly from <a href="launchJob?name=${name}&amp;action=all">here</a>
+
+
+
+
+
+
+
+            </div> <!-- end entry -->
+          </div> <!-- end post -->
+        </div><!-- end #content -->
+      <div style="clear: both;">&nbsp;</div>
+      <div id="widebar">
+        <div style="clear: both;">&nbsp;</div>
+      </div> <!-- end widebar -->
+    </div>
+    <!-- end #page -->
+  </div>
+  <!-- end #wrapper2 -->
+  <div id="footer">
+<!--    <p>(c) 2007 Website Name. Design by <a href="http://www.nodethirtythree.com/">NodeThirtyThree</a> + <a href="http://www.freecsstemplates.org/">Free CSS Templates</a></p>-->
+  </div>
+</div> <!-- end #wrapper -->
+</body>
+</html>
