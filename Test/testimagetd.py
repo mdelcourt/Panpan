@@ -22,7 +22,7 @@ if conf.useRoot:
     from ROOT import *
 
 
-im = Image.open( PanPanPath+'/Ressources/LPSK16001_3.png' )  # TO BE UPDATED FOR SERVER
+im = Image.open( PanPanPath+'/Ressources/LPSK16001_4.png' )  # TO BE UPDATED FOR SERVER
 
 
 
@@ -44,7 +44,7 @@ for w in getWesterns(pix,sx,sy,conf,westConfPath,westConfName): # generates west
 # to limit the number of westerns analysed (a bit faster for testing)
   a+=1
   w_index +=1
-  if a>0:
+  if a==2:
 
     print "analysing western nr "+str(w.ind)
     (bkg,sigma) = w.getBkg(pix)
@@ -68,6 +68,7 @@ for w in getWesterns(pix,sx,sy,conf,westConfPath,westConfName): # generates west
     w.genPeakLumiProfile(path = OutputPath)
 
     w.addBkgMask(outIm) # always after calcBkgProfile!
+    w.addWesternNumber(outIm)
     w.genOutWesternImg(path = OutputPath)
 
     intens = w.computeIntensity() # on en fait rien mais toi oui, sans doute

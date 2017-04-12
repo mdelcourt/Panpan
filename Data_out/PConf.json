@@ -1,1 +1,1 @@
-{"useRoot": false, "squareCol": [128, 255, 128], "squareMinSize": 10, "pPath": "./Data_out/", "useNumpy": true, "debug": true}
+{"useRoot": false, "squareCol": [128, 255, 128], "squareMinSize": 10, "pPath": "./Data_out/", "useNumpy": true, "debug": true, "FontPath":"/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf","FontSize":16}

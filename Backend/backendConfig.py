@@ -13,6 +13,8 @@ class processConfig(object):
     self.useRoot = bool()
     self.debug = bool()
     self.useNumpy = bool()
+    self.FontPath = str()
+    self.FontSize = int()
 
     self.loadPConf()
 
@@ -36,6 +38,8 @@ class processConfig(object):
       self.useRoot = dct["useRoot"]
       self.debug = dct["debug"]
       self.useNumpy = dct["useNumpy"]
+      self.FontPath = dct["FontPath"]
+      self.FontSize = dct["FontSize"]
 
     if self.debug:
       print "loaded Pconf from: "

@@ -1,9 +1,11 @@
 from backendConfig import westernConfig
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 import pylab
 import numpy as np
 import time
 import copy
+import os
+
 
 
 
@@ -489,6 +491,20 @@ class western:
       #pylab.show()
       pylab.savefig(path+name)
       pylab.close("all")
+
+  def addWesternNumber(self,outIm):
+    """
+    Add number of western (index) to the output imgage for ease of user for user
+    """
+    draw = ImageDraw.Draw(outIm)
+
+    #if chosen font exists, use it, otherwise, use default integrated font and size
+    if os.path.isfile(self.ProcConf.FontPath):
+      font = ImageFont.truetype(self.ProcConf.FontPath,self.ProcConf.FontSize)
+      draw.text((self.x0+5,self.y0+5),str(self.ind),fill=tuple(self.ProcConf.squareCol), font=font)
+    else:
+      draw.text((self.x0+5,self.y0+5),str(self.ind),fill=tuple(self.ProcConf.squareCol))
+    return outIm
 
 
   def addBkgMask(self,outIm):
