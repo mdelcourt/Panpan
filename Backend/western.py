@@ -277,6 +277,7 @@ class western:
         h_line.SetLineStyle(3)
         self.memDump.append(h_line)
         h_line.Draw("hist")
+
     self.peaks = []
     peakStart = self.mins[0]
     peakStop = 0

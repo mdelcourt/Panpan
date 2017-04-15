@@ -34,7 +34,7 @@ def getWesterns(pix,sx,sy,conf,westConfPath,westConfName):
           l0=x
           ly=y
 
-  #print lines
+  print lines
   westerns=[]
   while len(lines)>0:
     candi = lines[0]

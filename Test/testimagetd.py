@@ -26,7 +26,7 @@ if conf.useRoot:
     from ROOT import *
 
 
-im = Image.open( PanPanPath+'/Ressources/data_sa/M2 sod en haut P5 en bas.png' )  # TO BE UPDATED FOR SERVER
+im = Image.open( PanPanPath+'/Ressources/data_sa/M1.png' )  # TO BE UPDATED FOR SERVER
 print "img loaded"
 
 
@@ -35,6 +35,7 @@ pix=im.load()
 outIm = im.copy()
 
 (sx,sy)=im.size
+print im.size
 
 intensitys=[] # for debug
 w_index = -1 # for debug
@@ -80,10 +81,10 @@ for w in getWesterns(pix,sx,sy,conf,westConfPath,westConfName): # generates west
     intens = w.computeIntensity() # on en fait rien mais toi oui, sans doute
     sum_intens = sum(intens)
 
-    string = "M2\t"
+    string = "M1\t"
     for elem in intens:
       string += str(elem/sum_intens)+"\t"
-
+    string+="\n"
     with open("/home/thomas/data_sarah_W/results_gel2.csv","a") as fout:
       fout.write( string)
 
