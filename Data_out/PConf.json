@@ -1,1 +1,1 @@
-{"useRoot": false, "squareCol": [128, 255, 128], "squareMinSize": 10, "pPath": "./Data_out/", "useNumpy": true, "debug": true}
+{"useRoot": false, "squareCol": [128, 255, 128], "squareMinSize": 10, "confPath": "/home/thomas/Panpan/Panpan/Data_out/", "FontPath": "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", "confName": "PConf.json", "useNumpy": true, "FontSize": 16, "debug": true}

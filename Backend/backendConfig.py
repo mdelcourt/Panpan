@@ -13,6 +13,8 @@ class processConfig(object):
     self.useRoot = bool()
     self.debug = bool()
     self.useNumpy = bool()
+    self.FontPath = str()
+    self.FontSize = int()
 
     self.loadPConf()
 
@@ -36,6 +38,8 @@ class processConfig(object):
       self.useRoot = dct["useRoot"]
       self.debug = dct["debug"]
       self.useNumpy = dct["useNumpy"]
+      self.FontPath = dct["FontPath"]
+      self.FontSize = dct["FontSize"]
 
     if self.debug:
       print "loaded Pconf from: "
@@ -58,6 +62,7 @@ class westernConfig(object):
     self.nTrend = int() #Number of consecutive pixels needed for trend
     self.peakMergeThresh  = int()    #max prop of average peak size for peak merging
     self.peakAfterMergeThresh  = int()   #max prop size after merging
+    self.numPeaks = int()   # expected number of peaks to find (can be -1 for auto)
 
     self.__ownDict__ = dict(self.__dict__) # dictionary of this class level instance.
 
@@ -83,3 +88,4 @@ class westernConfig(object):
       self.nTrend = dct["nTrend"]
       self.peakMergeThresh  = dct["peakMergeThresh"]
       self.peakAfterMergeThresh  = dct["peakAfterMergeThresh"]
+      self.numPeaks = dct["numPeaks"]

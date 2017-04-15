@@ -1,8 +1,11 @@
 from backendConfig import westernConfig
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 import pylab
 import numpy as np
 import time
+import copy
+import os
+
 
 
 
@@ -17,8 +20,10 @@ class western:
     self.ind = self.__class__.count
 
     self.conf = westernConfig(westConfPath,westConfName,PConf)
+
     if PConf.useRoot:
       from ROOT import *
+
     self.ProcConf = PConf # process config
 
     self.setCoordinates((x0,x1,y0,y1))
@@ -39,6 +44,9 @@ class western:
     self.westernImgset = False
     self.westernOutImgset = False
     self.intensity = list()
+
+    if self.ProcConf.debug:
+      print "initialising western nr "+str(self.ind)
 
 
   def getBkgProfile (self):
@@ -99,7 +107,7 @@ class western:
       print 'getBkg'
 
     if self.ProcConf.useRoot:
-      self.lumiProfile = [0 for i in range(0,255)]
+      self.lumiProfile = [0 for i in range(0,256)]
       h = TH1I("h%s"%len(self.memDump),"h",256,0,256)
       self.memDump.append(h)
       for x in range(self.x0,self.x1):
@@ -108,13 +116,13 @@ class western:
           h.Fill(self.getLumi(pix[x,y]))
 
     if self.ProcConf.useNumpy:
-      self.lumiProfile = [0 for i in range(0,255)]
+      self.lumiProfile = [0 for i in range(0,256)]
       for x in range(self.x0,self.x1):
         for y in range(self.y0,self.y1):
           self.lumiProfile[int(self.getLumi(pix[x,y]))]+=1
 
     if not self.ProcConf.useNumpy and not self.ProcConf.useRoot:
-      self.lumiProfile = [0 for i in range(0,255)]
+      self.lumiProfile = [0 for i in range(0,256)]
       for x in range(self.x0,self.x1):
         for y in range(self.y0,self.y1):
           self.lumiProfile[int(self.getLumi(pix[x,y]))]+=1
@@ -208,25 +216,28 @@ class western:
     if self.ProcConf.debug:
       print 'getPeaks'
     self.getTrends()
+
+    # stabilise trends based on number of pixels (x-axis) following same trend
     for t in self.trends:
+      #print t
       if t[1]-t[0]>=self.conf.nTrend:
         #print "%s %s %s"%(t[0],t[1],conf.nTrend)
         self.stableTrends.append(t)
+
+    self.trendMerger()
+
     if self.ProcConf.useRoot:
       self.h_lumiProfile = TH1F("h%s"%len(self.memDump),"xLumiProfile",len(self.blotLumiProfile),0,len(self.blotLumiProfile))
       self.memDump.append(self.h_lumiProfile)
 
-    for x in range(len(self.blotLumiProfile)):
-      l=self.blotLumiProfile[x]
-      if self.ProcConf.useRoot:
+      for x in range(len(self.blotLumiProfile)):
+        l=self.blotLumiProfile[x]
         self.h_lumiProfile.Fill(x,l)
-    if self.ProcConf.useRoot:
+
       self.memDump.append(TCanvas())
       self.h_lumiProfile.Draw("hist")
 
-    self.trendMerger()
-    for t in self.mergedTrends:
-      if self.ProcConf.useRoot:
+      for t in self.mergedTrends:
         h_line = TLine(t[0],self.blotLumiProfile[t[0]],t[1],self.blotLumiProfile[t[1]])
         if t[2]>0:
           h_line.SetLineColor(kGreen+1)
@@ -235,9 +246,7 @@ class western:
         h_line.SetLineWidth(3)
         self.memDump.append(h_line)
         h_line.Draw()
-
-    for t in self.stableTrends:
-      if self.ProcConf.useRoot:
+      for t in self.stableTrends:
         h_line = TLine(t[0],self.blotLumiProfile[t[0]],t[1],self.blotLumiProfile[t[1]])
         if t[2]>0:
           h_line.SetLineColor(kGreen+1)
@@ -251,7 +260,7 @@ class western:
     prevT = [0,0,-1]
     for t in self.mergedTrends:
       if prevT[2]<0 and t[2]>0:
-        #print "Found minimum at : %s %s"%(prevT[1],t[1])
+        #print "Found minimum at : %s %s %s"%(prevT[1],(prevT[1]+t[0])/2.,t[0])
         self.mins.append((prevT[1]+t[0])/2.)
 
       prevT=t
@@ -268,45 +277,26 @@ class western:
         h_line.SetLineStyle(3)
         self.memDump.append(h_line)
         h_line.Draw("hist")
+
     self.peaks = []
     peakStart = self.mins[0]
     peakStop = 0
     prevMin = self.mins[0]
-
+    print "mins"
     for m in self.mins[1:]:
       #print peakStart
-      #print m
       maxi = max(self.blotLumiProfile[int(peakStart):int(m)])
       minLum = self.blotLumiProfile[int(m)]
-      if minLum>0.01*self.conf.lumiThresh*maxi:
-        print "Removing minimum %s (%s >%s%% of max (%s))"%(m,minLum,self.conf.lumiThresh,maxi)
+      if minLum>self.conf.lumiThresh*0.01*maxi:
+        pass
+        #print "Removing minimum %s (%s %s%% of max (%s))"%(m,minLum,self.conf.lumiThresh,maxi)
       else:
         peakStop = m
         self.peaks.append([peakStart,peakStop])
         peakStart= m
-    #Merging peaks if too small
-    avSize=0
-    for p in self.peaks:
-      pSize = p[1]-p[0]
-      avSize +=pSize*1./len(self.peaks)
 
-    for i in range(len(self.peaks)):
-      p = self.peaks[i]
-      pSize = p[1]-p[0]
-      if pSize<self.conf.peakMergeThresh*avSize:
-        print "Peak under threshold !"
-        print "Attempt to merge..."
-        if i == len(self.peaks)-1:
-          print "Last peak ! Unable to merge !"
-        else:
-          nP = self.peaks[i+1]
-          if pSize+(nP[1]-nP[0])>self.conf.peakAfterMergeThresh*avSize:
-            print "Peak would be too big after merging, aborting !"
-          else:
-            print "Merging peaks..."
-            self.peaks[i+1][0]=p[0]
-      else:
-        self.mergedPeaks.append(p)
+
+    self.mergePeaks()
 
     if len(self.mergedPeaks)<1:
       print "ERROR, no merged peaks..."
@@ -324,8 +314,101 @@ class western:
     return(self.mergedPeaks)
 
 
+  def mergePeaks(self):
+    """
+    Merging peaks if too small.
+    AUtomatic: run several loops of merging. Each loop calculates average len based on nulber of peaks detected in previous pass. So each pass gives an oportunity to merge a bit more, until peaks are correctly seperated and extra merging always leads to too big merged lengths.
+    """
+    peaks = copy.deepcopy(self.peaks)
+    avSize=0
+    sumsize = 0
+    for p in peaks:
+      pSize = p[1]-p[0]
+      sumsize +=pSize*1.
+
+    # if user doesn't give a number of peaks, determine average based on detected peaks.
+    # (this leads to over dividing peaks)
+    if self.conf.numPeaks <= 0:
+      avSize = sumsize/len(peaks)
+    # if user gives a number of peaks,use to determine expected average len of peaks.
+    else:
+      avSize = sumsize/self.conf.numPeaks
+
+    if self.conf.numPeaks<=0: # automatic search for peaks: loops until no difference between peak list and merged peaks list
+      lenPeaks = len(peaks)
+      lenMergedPeaks = len(self.mergedPeaks)
+      mergedPeaks = copy.deepcopy(peaks)
+      continuer = True
+      while continuer :
+
+        avSize = sumsize/len(peaks)
+        merged_index = -1
+        for i in range(len(peaks)):
+          merged_index+=1
+          p = peaks[i]
+          pSize = p[1]-p[0]
+          if i == len(peaks)-1:
+            print "Last peak ! Unable to merge to following !"
+            if mergedPeaks[-1][1]-mergedPeaks[-2][0] > self.conf.peakAfterMergeThresh*avSize:
+              print "Adding as last peak"
+            else:
+              print "Merging to  previous peak!"
+              mergedPeaks[-2][1] = mergedPeaks[-1][1]
+              mergedPeaks.pop(-1)
+          else:
+            nP = peaks[i+1]
+            if pSize+(nP[1]-nP[0])>self.conf.peakAfterMergeThresh*avSize:
+              print "Peak would be too big after merging, aborting !"
+            else:
+              print "Merging peaks..."
+              mergedPeaks[merged_index+1][0] = mergedPeaks[merged_index][0]
+              mergedPeaks.pop(merged_index)
+              merged_index -= 1
+
+        lenPeaks = len(peaks)
+        lenMergedPeaks = len(mergedPeaks)
+
+        if continuer:
+          peaks = copy.deepcopy(mergedPeaks)
+
+        if lenPeaks == lenMergedPeaks:
+          continuer = False
+        print "Detected {} peaks".format(lenMergedPeaks)
+      self.mergedPeaks = copy.deepcopy(mergedPeaks)
+
+    else: # merges peaks based on number of peaks given by user (used to estimate average size of peak).
+      #self.mergedPeaks = copy.deepcopy(self.peaks)
+      mergedPeaks = copy.deepcopy(peaks)
+      avSize = sumsize/self.conf.numPeaks
+      merged_index = -1
+      for i in range(len(peaks)):
+        merged_index+=1
+        p = peaks[i]
+
+        pSize = p[1]-p[0]
+        if i == len(peaks)-1:
+          print "Last peak ! Unable to merge to following !"
+          if mergedPeaks[-1][1]-mergedPeaks[-2][0] > self.conf.peakAfterMergeThresh*avSize:
+            print "Adding as last peak"
+          else:
+            print "Merging to  previous peak!"
+            mergedPeaks[-2][1] = mergedPeaks[-1][1]
+            mergedPeaks.pop(-1)
+        else:
+          nP = peaks[i+1]
+          if pSize+(nP[1]-nP[0])>self.conf.peakAfterMergeThresh*avSize:
+            print "Peak would be too big after merging, aborting !"
+          else:
+            print "Merging peaks..."
+            mergedPeaks[merged_index+1][0] = mergedPeaks[merged_index][0]
+            mergedPeaks.pop(merged_index)
+            merged_index -= 1
+      self.mergedPeaks = copy.deepcopy(mergedPeaks)
+
+
+
   def getTrends(self):
-    """ get trends for peak definition
+    """ get trends for peak definition (trend = if previous luminosity was of same monotonous trend)
     """
     if self.ProcConf.debug:
       print 'getTrends'
@@ -354,6 +437,8 @@ class western:
 
   def trendMerger(self):
     """ merge trends... I guess? for peak definition
+    Merges based on sign of previous trend being different from current trend sign
+    (a decrease follows an increase).
     """
 
     if self.ProcConf.debug:
@@ -410,6 +495,20 @@ class western:
       #pylab.show()
       pylab.savefig(path+name)
       pylab.close("all")
+
+  def addWesternNumber(self,outIm):
+    """
+    Add number of western (index) to the output imgage for ease of user for user
+    """
+    draw = ImageDraw.Draw(outIm)
+
+    #if chosen font exists, use it, otherwise, use default integrated font and size
+    if os.path.isfile(self.ProcConf.FontPath):
+      font = ImageFont.truetype(self.ProcConf.FontPath,self.ProcConf.FontSize)
+      draw.text((self.x0+5,self.y0+5),str(self.ind),fill=tuple(self.ProcConf.squareCol), font=font)
+    else:
+      draw.text((self.x0+5,self.y0+5),str(self.ind),fill=tuple(self.ProcConf.squareCol))
+    return outIm
 
 
   def addBkgMask(self,outIm):
