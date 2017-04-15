@@ -4,26 +4,30 @@ from Backend.backendLib import *
 from Backend.backendConfig import *
 from Backend.western import *
 import pylab
-
+import os
 
 
 PanPanPath =  os.environ['PANPANPATH']   #TO BE UPDATED FOR SERVER (path of PanPan project)
-OutputPath =  PanPanPath+"/Data_out/1/" # temporary (path  of output data - for tests, all westerns in one)
+OutputPath =  PanPanPath+"/Data_out/M2/" # temporary (path  of output data - for tests, all westerns in one)
 procConfPath = PanPanPath+"/Data_out/"
 procConfName = "PConf.json"
 
-westConfPath = PanPanPath+"/Data_out/1" # temporary   config path for one western (but for tests, all westerns)
+westConfPath = PanPanPath+"/Data_out/" # temporary   config path for one western (but for tests, all westerns)
 westConfName = "testconf.json"
+
+os.system("mkdir "+OutputPath)
 
 # load process config file.
 conf = processConfig(procConfPath,procConfName)
+conf.savePConf()
+
 
 if conf.useRoot:
     from ROOT import *
 
 
-im = Image.open( PanPanPath+'/Ressources/LPSK16001_4.png' )  # TO BE UPDATED FOR SERVER
-
+im = Image.open( PanPanPath+'/Ressources/data_sa/M2 sod en haut P5 en bas.png' )  # TO BE UPDATED FOR SERVER
+print "img loaded"
 
 
 pix=im.load()
@@ -43,8 +47,9 @@ for w in getWesterns(pix,sx,sy,conf,westConfPath,westConfName): # generates west
 
 # to limit the number of westerns analysed (a bit faster for testing)
   a+=1
+  print a
   w_index +=1
-  if a==2:
+  if a<1000:
 
     print "analysing western nr "+str(w.ind)
     (bkg,sigma) = w.getBkg(pix)
@@ -73,6 +78,14 @@ for w in getWesterns(pix,sx,sy,conf,westConfPath,westConfName): # generates west
 
 
     intens = w.computeIntensity() # on en fait rien mais toi oui, sans doute
+    sum_intens = sum(intens)
+
+    string = "M2\t"
+    for elem in intens:
+      string += str(elem/sum_intens)+"\t"
+
+    with open("/home/thomas/data_sarah_W/results_gel2.csv","a") as fout:
+      fout.write( string)
 
 # limit the number of westerns analysed (faster for testing)
   #if a == 10:
@@ -84,3 +97,4 @@ outIm.save(OutputPath + "outim.png")
 if conf.useNumpy:
 
   pylab.close()
+

@@ -107,7 +107,7 @@ class western:
       print 'getBkg'
 
     if self.ProcConf.useRoot:
-      self.lumiProfile = [0 for i in range(0,255)]
+      self.lumiProfile = [0 for i in range(0,256)]
       h = TH1I("h%s"%len(self.memDump),"h",256,0,256)
       self.memDump.append(h)
       for x in range(self.x0,self.x1):
@@ -116,13 +116,13 @@ class western:
           h.Fill(self.getLumi(pix[x,y]))
 
     if self.ProcConf.useNumpy:
-      self.lumiProfile = [0 for i in range(0,255)]
+      self.lumiProfile = [0 for i in range(0,256)]
       for x in range(self.x0,self.x1):
         for y in range(self.y0,self.y1):
           self.lumiProfile[int(self.getLumi(pix[x,y]))]+=1
 
     if not self.ProcConf.useNumpy and not self.ProcConf.useRoot:
-      self.lumiProfile = [0 for i in range(0,255)]
+      self.lumiProfile = [0 for i in range(0,256)]
       for x in range(self.x0,self.x1):
         for y in range(self.y0,self.y1):
           self.lumiProfile[int(self.getLumi(pix[x,y]))]+=1
